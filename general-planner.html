@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Path of Force nodes priced in DPS per point.">
+<title>Void Idle General Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: stat strip, scrolling Path of Force tree on the left, sticky results rail on the right; stacks on phones. */
+:root{
+  --bg:#121315; --bg2:#17191c; --panel:#1b1e22; --panel2:#262a30; --ink:#ebe6dc; --muted:#9a968c; --line:#30343a;
+  --accent:#d6a24a; --accent-soft:#3a2f1c; --accent-ink:#1b1408; --accent-line:#8a6a32;
+  --gain:#7cc7a4; --danger:#ef8b80;
+  --f-display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --danger:#b3261e; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --danger:#b3261e; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);background-image:radial-gradient(1200px 500px at 70% -10%,var(--accent-soft),transparent 70%);background-repeat:no-repeat;color:var(--ink);font:14px/1.5 var(--f-body)}
+.wrap{max-width:1280px;margin:0 auto;padding-block:20px 48px;padding-inline:16px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:2.1rem;letter-spacing:.02em;line-height:1.05}
+h1 .tag{color:var(--accent)}
+h2{font-size:1.05rem;letter-spacing:.03em}
+.sub{color:var(--muted);margin:2px 0 0}
+.eyebrow{font:600 .7rem/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;margin-bottom:16px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:7px 12px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:7px 14px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:0}
+.tile .k{font-size:.74rem;color:var(--muted)}
+.tile .v{font:500 1.25rem var(--f-mono);font-variant-numeric:tabular-nums}
+.tile .d{font:500 .78rem var(--f-mono)}
+.up{color:var(--gain)} .dn{color:var(--danger)}
+.tile input{width:72px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 6px;color:var(--ink);font:500 1.1rem var(--f-mono)}
+.over{color:var(--danger)}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+.treehead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--accent)}
+.legend .l-sel::before{background:var(--accent)}
+.legend .l-mine::before{background:color-mix(in srgb,var(--accent) 30%,var(--bg2))}
+.legend .l-av::before{border-style:dashed}
+.legend .l-lock::before{border-color:var(--line)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.top-nodes{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
+.rowlabel{margin:14px 0 8px}
+.scroller{overflow-x:auto;padding-bottom:8px}
+.lanes{display:flex;gap:12px;align-items:flex-start;min-width:min-content}
+.lane{width:146px;flex:none;display:flex;flex-direction:column;gap:6px}
+.lane .lh{font:600 .68rem/1.2 var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-height:2.4em}
+.lane .need{display:block;font:400 .66rem/1.2 var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.chain{display:flex;flex-direction:column;gap:6px;position:relative}
+.node{display:flex;flex-direction:column;gap:2px;text-align:left;width:100%;border:1px dashed var(--accent-line);background:var(--bg2);border-radius:7px;padding:6px 8px;min-width:0}
+.node .nm{font:600 .82rem/1.15 var(--f-display)}
+.node .mt{font:400 .68rem/1.25 var(--f-body);color:var(--muted)}
+.node .pips{display:flex;gap:3px;margin-top:2px}
+.node .pips i{width:9px;height:9px;border-radius:50%;border:1px solid var(--accent-line);background:transparent}
+.node .pips i.on{background:var(--accent);border-color:var(--accent)}
+.node .pips i.mine{background:color-mix(in srgb,var(--accent) 30%,var(--bg2))}
+.node.sel{background:var(--accent);border:1px solid var(--accent);color:var(--accent-ink)}
+.node.sel .mt{color:var(--accent-ink);opacity:.8}
+.node.sel .pips i{border-color:var(--accent-ink)}
+.node.sel .pips i.on{background:var(--accent-ink)}
+.node.mineonly{background:color-mix(in srgb,var(--accent) 30%,var(--bg2));border-style:solid}
+.node.locked{border-style:solid;border-color:var(--line);opacity:.65}
+.node.leaf{margin-left:10px;width:calc(100% - 10px)}
+.node:hover{border-color:var(--accent)}
+.rm .node.sel:hover{outline:2px solid var(--danger)}
+
+.rail{position:sticky;top:12px;display:grid;gap:12px}
+@media (max-width:980px){.rail{position:static}}
+.big{font:600 2.3rem/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.big small{font:500 .8rem var(--f-display);color:var(--muted);letter-spacing:.08em}
+.delta{font:500 .9rem var(--f-mono)}
+dl.kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:10px 0 0}
+dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;text-align:right;font:500 .88rem var(--f-mono);font-variant-numeric:tabular-nums}
+.list{display:grid;gap:6px;margin-top:8px}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:baseline;background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:6px 10px;text-align:left;width:100%}
+.item:hover{border-color:var(--accent)}
+.item .nm{font-weight:600;min-width:0}
+.item .sm{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
+.item .pv{font:500 .8rem var(--f-mono);white-space:nowrap}
+.note{color:var(--muted);font-size:.8rem;margin:8px 0 0}
+.swap{border-color:var(--accent-line);background:var(--accent-soft)}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent-line);border-radius:8px;padding:8px 14px;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgb(0 0 0/.35)}
+</style>
+<style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
+</head>
+<body>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner" aria-current="page">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="eyebrow">Void Idle</div>
+    <h1>General <span class="tag">Planner</span></h1>
+    <p class="sub">Path of Force damage nodes, priced in DPS per point from your Bow Planner build.</p>
+  </div>
+  <div class="actions">
+    <div class="seg" role="group" aria-label="Tap action">
+      <button id="modeAdd" aria-pressed="true" type="button">Add rank</button>
+      <button id="modeRm" aria-pressed="false" type="button">Remove rank</button>
+    </div>
+    <button class="btn" id="mineBtn" type="button">Load my build</button>
+  </div>
+</header>
+
+<section class="strip" id="strip"></section>
+
+<div class="main">
+  <section>
+    <div class="treehead">
+      <h2>Path of Force</h2>
+      <div class="legend"><span class="l-sel">Selected</span><span class="l-mine">In my build, not selected</span><span class="l-av">Open</span><span class="l-lock">Needs earlier node</span></div>
+    </div>
+    <div class="panel" id="treepanel">
+      <div class="eyebrow">Top nodes</div>
+      <div class="top-nodes" id="topnodes" style="margin-top:8px"></div>
+      <div class="eyebrow rowlabel">Main columns</div>
+      <div class="scroller"><div class="lanes" id="rowMain"></div></div>
+      <div class="eyebrow rowlabel">Branches (each needs the node named above it)</div>
+      <div class="scroller"><div class="lanes" id="rowBranch"></div></div>
+    </div>
+    <p class="note">Tap a node to add a rank. Tapping a locked node takes the nodes it needs first. Switch to Remove rank to take points back; removing a node's last rank also removes the nodes behind it. Your build is loaded by default.</p>
+  </section>
+
+  <aside class="rail">
+    <div class="panel">
+      <div class="eyebrow">Estimated DPS (single target)</div>
+      <div class="big" id="dps">0 <small>DPS</small></div>
+      <div class="delta" id="dpsd"></div>
+      <dl class="kv" id="kv"></dl>
+    </div>
+    <div class="panel">
+      <h2>Best next point</h2>
+      <div class="list" id="best"></div>
+    </div>
+    <div class="panel">
+      <h2>Weakest points to move</h2>
+      <div class="list" id="weak"></div>
+      <div class="list" id="swap"></div>
+    </div>
+    <p class="note">Values are calibrated to Bow Planner runs at Mastery 55 (Path nodes checked in-game: Aim, Edge, Haste, Power and Malice Path all give the normal per-rank value). Power and Aim have 2 ranks (tooltips checked). Mana and defense paths are left out because none beat these nodes.</p>
+  </aside>
+</div>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+// ---------- data ----------
+const TYPES={
+  power:{name:"Power",max:2,fx:{dmg:.25},txt:"+0.25% damage"},
+  aim:{name:"Aim",max:2,fx:{},txt:"+0.25% hit (capped at 95%)"},
+  edge:{name:"Edge",max:2,fx:{crit:.25},txt:"+0.25% crit chance"},
+  malice:{name:"Malice",max:2,fx:{cd:1.5},txt:"+1.5% crit damage"},
+  haste:{name:"Haste",max:2,fx:{spd:.25},txt:"+0.25% attack speed"},
+  powerfocus:{name:"Power Focus",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
+  hastefocus:{name:"Haste Focus",max:1,fx:{spd:.5},txt:"+0.5% attack speed"},
+  pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
+  inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
+};
+const ANCHOR={dps:11173,crit:57.6,cd:312.46,interval:1.123};
+const K={dmgBase:150,cd:.00291,crit:.0067,spd:.0055};
+const N=[],byId={},kids={};
+function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
+add("inner","inner","",4);
+add("pof","pof","inner",1);
+const LANES=[];
+function lane(key,title,parent,chain,leaves,row){
+  let prev=parent;const ids=[];
+  chain.forEach((c,i)=>{prev=add(key+"_"+i,c[0],prev,c[1],c[2]);ids.push(prev)});
+  const lv=(leaves||[]).map((c,j)=>add(key+"_L"+j,c[0],prev,c[1],c[2]));
+  LANES.push({key,title,parent,ids,lv,row});
+}
+const P="power",A="aim",E="edge",M="malice",H="haste";
+lane("c1","Column 1","pof",[[P,1],[A,1],[E,1],[M,2],[H,1],[P,1],[A,1],[E,1,"Edge Path"],[E,1],[E,1]],[[H,0],[A,0]],"main");
+lane("c2","Column 2","pof",[[E,1],[M,2],[H,1],[P,1],[H,0],[P,0]],[],"main");
+lane("c3","Column 3","pof",[["hastefocus",1],[A,0],[M,0],[P,0]],[],"main");
+lane("c4","Column 4","pof",[["powerfocus",1],[E,1],[H,0],[A,0]],[],"main");
+lane("c5","Column 5","pof",[[A,1],[E,1],[M,2],[H,1],[P,1],[A,1]],[],"main");
+lane("c2b","Column 2 branch","c2_3",[[A,1],[E,1],[M,2],[M,2,"Malice Path"],[M,2],[M,2]],[[E,0],[P,0]],"branch");
+lane("c1m","Column 1 side branch","c1_3",[[E,1],[M,2]],[],"branch");
+lane("c1a","Aim Path branch","c1_6",[[A,0,"Aim Path"],[A,0],[A,0]],[[M,0],[P,0]],"branch");
+lane("c2c","Edge Path branch","c2b_2",[[E,0,"Edge Path"],[E,0],[E,0]],[[H,0],[A,0]],"branch");
+lane("c5b","Column 5 branch","c5_3",[[M,2],[H,0]],[],"branch");
+lane("c5c","Right branch","c5_5",[[E,1]],[],"branch");
+lane("c5d","Haste Path","c5c_0",[[H,1,"Haste Path"],[H,1],[H,1]],[[A,0],[M,2]],"branch");
+lane("c5e","Power Path","c5c_0",[[P,1,"Power Path"],[P,1],[P,1]],[[E,0],[H,0]],"branch");
+
+const isPath=n=>false;const mult=n=>isPath(n)?2:1;
+const MY={};N.forEach(n=>MY[n.id]=n.my);
+const maxOf=id=>TYPES[byId[id].type].max;
+let R={},POINTS=55,mode="add";
+try{const s=JSON.parse(localStorage.getItem("generalplanner.v1")||"null");if(s&&s.r){R=s.r;POINTS=s.points||55}}catch(e){}
+if(!Object.keys(R).length)R={...MY};
+N.forEach(n=>{if(R[n.id]==null)R[n.id]=0;R[n.id]=Math.min(R[n.id],maxOf(n.id))});
+const save=()=>{try{localStorage.setItem("generalplanner.v1",JSON.stringify({r:R,points:POINTS}))}catch(e){}};
+
+// ---------- model ----------
+const spent=r=>N.reduce((s,n)=>s+(r[n.id]||0),0);
+function fx(r){const o={dmg:0,cd:0,crit:0,spd:0};for(const n of N){const rk=r[n.id]||0;if(!rk)continue;const f=TYPES[n.type].fx;for(const k in f)o[k]+=f[k]*rk*mult(n)}return o}
+const FMY=fx(MY);
+function dpsOf(r){const f=fx(r),d={dmg:f.dmg-FMY.dmg,cd:f.cd-FMY.cd,crit:f.crit-FMY.crit,spd:f.spd-FMY.spd};
+  return ANCHOR.dps*(1+d.dmg/K.dmgBase)*(1+K.cd*d.cd)*(1+K.crit*d.crit)*(1+K.spd*d.spd)}
+const unlocked=id=>{const p=byId[id].parent;return p===""||R[p]>0};
+function descendants(id,out=[]){(kids[id]||[]).forEach(c=>{out.push(c);descendants(c,out)});return out}
+function pathFor(id,r){const p=[];let c=id;while(c&&c!==""){p.push(c);if(r[c]>0)break;c=byId[c].parent;if(c&&r[c]>0)break}return p}
+function withAdd(id,r){const p=pathFor(id,r);const o={...r};
+  const chain=[id];let c=byId[id].parent;while(c&&r[c]===0){chain.push(c);c=byId[c].parent}
+  chain.forEach(x=>o[x]=(o[x]||0)+1);return {r:o,cost:chain.length}}
+function withRemove(id,r){const o={...r};o[id]=Math.max(0,o[id]-1);if(o[id]===0)descendants(id).forEach(d=>o[d]=0);return o}
+
+// ---------- ui ----------
+const $=s=>document.querySelector(s);
+const f1=(x,d=1)=>(x>=0?"+":"")+x.toFixed(d);
+const pct=(a,b)=>(a/b-1)*100;
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
+function effTxt(n){const t=TYPES[n.type].txt;return isPath(n)?t.replace(/\+([\d.]+)%/,(m,x)=>"+"+(+x*2)+"%")+" (Path node, double)":t}
+function nodeBtn(id,leaf){
+  const n=byId[id],rk=R[id],mx=maxOf(id),mine=MY[id];
+  const cls=["node"];
+  if(leaf)cls.push("leaf");
+  if(rk>0)cls.push("sel");else if(mine>0)cls.push("mineonly");else if(!unlocked(id))cls.push("locked");
+  let pips="";for(let i=0;i<mx;i++)pips+=`<i class="${i<rk?"on":i<mine?"mine":""}"></i>`;
+  return `<button type="button" class="${cls.join(" ")}" data-id="${id}" aria-label="${n.label} ${rk} of ${mx}"><span class="nm">${n.label}</span><span class="mt">${rk}/${mx} · ${effTxt(n)}</span><span class="pips">${pips}</span></button>`;
+}
+function renderTree(){
+  $("#topnodes").innerHTML=`<div style="width:160px">${nodeBtn("inner")}</div><div style="width:160px">${nodeBtn("pof")}</div>`;
+  for(const row of ["main","branch"]){
+    $(row==="main"?"#rowMain":"#rowBranch").innerHTML=LANES.filter(l=>l.row===row).map(l=>{
+      const need=l.row==="branch"?`<span class="need">needs ${byId[l.parent].label} (${laneName(l.parent)})</span>`:"";
+      return `<div class="lane"><div class="lh">${l.title}${need}</div><div class="chain">${l.ids.map(i=>nodeBtn(i)).join("")}${l.lv.map(i=>nodeBtn(i,true)).join("")}</div></div>`}).join("");
+  }
+}
+function laneName(id){const l=LANES.find(l=>l.ids.includes(id)||l.lv.includes(id));return l?l.title.toLowerCase():""}
+function renderRail(){
+  const cur=dpsOf(R),f=fx(R),d={dmg:f.dmg-FMY.dmg,cd:f.cd-FMY.cd,crit:f.crit-FMY.crit,spd:f.spd-FMY.spd};
+  const sp=spent(R),rem=POINTS-sp;
+  $("#strip").innerHTML=
+   `<div class="tile"><div class="k">Points spent</div><div class="v ${rem<0?"over":""}">${sp} / <input id="pts" type="number" min="0" max="200" value="${POINTS}" aria-label="Points available"></div><div class="d ${rem<0?"over":""}">${rem>=0?rem+" free":(-rem)+" over budget"}</div></div>`+
+   `<div class="tile"><div class="k">Crit damage</div><div class="v">${(ANCHOR.cd+d.cd).toFixed(2)}%</div><div class="d ${d.cd>=0?"up":"dn"}">${f1(d.cd,2)}</div></div>`+
+   `<div class="tile"><div class="k">Crit chance</div><div class="v">${(ANCHOR.crit+d.crit).toFixed(2)}%</div><div class="d ${d.crit>=0?"up":"dn"}">${f1(d.crit,2)}</div></div>`+
+   `<div class="tile"><div class="k">Attack interval</div><div class="v">${(ANCHOR.interval/(1+d.spd/100)).toFixed(3)} s</div><div class="d ${d.spd>=0?"up":"dn"}">${f1(d.spd,2)}% speed</div></div>`+
+   `<div class="tile"><div class="k">All damage vs my build</div><div class="v">${f1(d.dmg,2)}%</div><div class="d">Inner Focus, Power, Focus nodes</div></div>`;
+  const pts=$("#pts");pts.onchange=()=>{POINTS=Math.max(0,+pts.value||0);save();renderRail()};
+  $("#dps").innerHTML=`${Math.round(cur).toLocaleString()} <small>DPS</small>`;
+  const dd=pct(cur,ANCHOR.dps);
+  $("#dpsd").innerHTML=Math.abs(dd)<.005?`<span>Matches my build (${ANCHOR.dps.toLocaleString()})</span>`:`<span class="${dd>=0?"up":"dn"}">${f1(dd,2)}% vs my build (${ANCHOR.dps.toLocaleString()})</span>`;
+  $("#kv").innerHTML=`<dt>Crit damage vs my build</dt><dd>${f1(d.cd,2)}%</dd><dt>Crit chance vs my build</dt><dd>${f1(d.crit,2)}%</dd><dt>Attack speed vs my build</dt><dd>${f1(d.spd,2)}%</dd><dt>All damage vs my build</dt><dd>${f1(d.dmg,2)}%</dd>`;
+
+  // best adds
+  const adds=[];
+  for(const n of N){
+    if(R[n.id]>=maxOf(n.id))continue;
+    const w=withAdd(n.id,R),g=dpsOf(w.r)-cur;if(g<=0.5)continue;
+    adds.push({id:n.id,cost:w.cost,gain:g,pp:g/w.cost/cur*100,r:w.r})}
+  adds.sort((a,b)=>b.pp-a.pp);
+  $("#best").innerHTML=adds.slice(0,6).map(a=>`<button type="button" class="item" data-add="${a.id}"><span class="nm">${byId[a.id].label}<span class="sm">${laneName(a.id)||"top"} · ${a.cost} pt${a.cost>1?"s":""}${a.cost>1?" with its path":""}</span></span><span class="pv up">${f1(a.pp,2)}% / pt</span></button>`).join("")||`<p class="note">Nothing left that adds damage.</p>`;
+
+  // weakest removes
+  const rms=[];
+  for(const n of N){const rk=R[n.id];if(!rk||n.id==="inner"||n.id==="pof")continue;
+    const hasKid=(kids[n.id]||[]).some(k=>R[k]>0);if(rk===1&&hasKid)continue;
+    const o={...R};o[n.id]=rk-1;const l=cur-dpsOf(o);rms.push({id:n.id,loss:l,pp:l/cur*100})}
+  rms.sort((a,b)=>a.pp-b.pp);
+  $("#weak").innerHTML=rms.slice(0,5).map(a=>`<button type="button" class="item" data-rm="${a.id}"><span class="nm">${byId[a.id].label}<span class="sm">${laneName(a.id)} · now ${R[a.id]}/${maxOf(a.id)}</span></span><span class="pv dn">-${a.pp.toFixed(2)}% / pt</span></button>`).join("")||"";
+
+  // best swap
+  let best=null;
+  for(const a of adds.filter(a=>a.cost===1).slice(0,4))for(const m of rms.slice(0,6)){
+    if(m.id===a.id)continue;
+    const o=withRemove(m.id,R);
+    const w=withAdd(a.id,o);if(w.cost!==1)continue;
+    if(spent(w.r)!==spent(R))continue;
+    const net=pct(dpsOf(w.r),cur);if(!best||net>best.net)best={a:a.id,m:m.id,net}}
+  $("#swap").innerHTML=best&&best.net>.03?`<div class="item swap"><span class="nm">Best swap<span class="sm">Take a rank from ${byId[best.m].label} (${laneName(best.m)}), add it to ${byId[best.a].label} (${laneName(best.a)||"top"})</span></span><span class="pv up">${f1(best.net,2)}%</span></div>`:`<p class="note">No single swap adds more than 0.03%.</p>`;
+}
+function render(){renderTree();renderRail();save()}
+document.addEventListener("click",e=>{
+  const nb=e.target.closest(".node");
+  if(nb){const id=nb.dataset.id;
+    if(mode==="add"){
+      if(R[id]>=maxOf(id)){toast(byId[id].label+" is at its maximum rank.");return}
+      const w=withAdd(id,R);
+      if(spent(w.r)>POINTS){toast("That needs "+w.cost+" point"+(w.cost>1?"s":"")+" and you have "+(POINTS-spent(R))+" free. Remove a rank first.");return}
+      R=w.r;
+    }else{
+      if(!R[id]){toast("That node has no ranks to remove.");return}
+      const kidsOn=descendants(id).filter(d=>R[d]>0).length;
+      R=withRemove(id,R);
+      if(R[id]===0&&kidsOn)toast("Also removed "+kidsOn+" node"+(kidsOn>1?"s":"")+" behind it.");
+    }
+    render();return}
+  const ad=e.target.closest("[data-add]");
+  if(ad){const w=withAdd(ad.dataset.add,R);if(spent(w.r)>POINTS)toast("Over budget: take a rank out of a weak node first.");else{R=w.r;render()}return}
+  const rm=e.target.closest("[data-rm]");
+  if(rm){R=withRemove(rm.dataset.rm,R);render()}
+});
+$("#modeAdd").onclick=()=>{mode="add";$("#modeAdd").setAttribute("aria-pressed","true");$("#modeRm").setAttribute("aria-pressed","false");$("#treepanel").classList.remove("rm")};
+$("#modeRm").onclick=()=>{mode="rm";$("#modeRm").setAttribute("aria-pressed","true");$("#modeAdd").setAttribute("aria-pressed","false");$("#treepanel").classList.add("rm")};
+$("#mineBtn").onclick=()=>{R={...MY};POINTS=Math.max(POINTS,spent(MY));render()};
+if(spent(MY)!==55)console.warn("my build points",spent(MY));
+render();
+</script>
+
+</body>
+</html>

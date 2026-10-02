@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Shot-by-shot DPS simulator for the Bow mastery tree.">
+<title>Void Idle Bow Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: stat strip on top, three-path skill tree on the left, sticky results rail on the right; stacks on phones. */
+:root{
+  --bg:#121315; --bg2:#17191c; --panel:#1b1e22; --panel2:#262a30; --ink:#ebe6dc; --muted:#9a968c; --line:#30343a;
+  --accent:#d6a24a; --accent-soft:#3a2f1c; --accent-ink:#1b1408; --accent-line:#8a6a32;
+  --gain:#7cc7a4; --venom:#b897ee; --ability:#6fa8dc; --danger:#ef8b80; --good:#7fd49b;
+  --f-display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --venom:#6f45ad; --ability:#2f6aa3; --danger:#b3261e; --good:#1c7a48; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --venom:#6f45ad; --ability:#2f6aa3; --danger:#b3261e; --good:#1c7a48; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);background-image:radial-gradient(1200px 500px at 70% -10%,var(--accent-soft),transparent 70%);background-repeat:no-repeat;color:var(--ink);font:14px/1.5 var(--f-body)}
+.wrap{max-width:1280px;margin:0 auto;padding-block:20px 48px;padding-inline:16px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:2.1rem;letter-spacing:.02em;line-height:1.05}
+h1 .tag{color:var(--accent)}
+.sub{color:var(--muted);margin:2px 0 0}
+.eyebrow{font:600 .7rem/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;margin-bottom:16px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:7px 12px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* stats */
+details.stats{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:16px}
+details.stats>summary{cursor:pointer;padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;list-style:none}
+details.stats>summary::-webkit-details-marker{display:none}
+details.stats>summary::before{content:"▸";color:var(--muted);transition:transform .15s}
+details.stats[open]>summary::before{transform:rotate(90deg)}
+.sumline{color:var(--muted);font-size:.85rem}
+.statbody{padding:0 16px 16px;display:grid;gap:16px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px}
+.field{display:flex;flex-direction:column;gap:3px;min-width:0}
+.field label{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.field input,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;color:var(--ink);font:500 .95rem var(--f-mono)}
+.field.check{flex-direction:row;align-items:center;gap:8px;padding-top:18px}
+.field.check label{color:var(--ink);font-size:.85rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 12px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+/* main grid */
+.main{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:16px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+.treehead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--accent)}
+.legend .l-sel::before{background:var(--accent)}
+.legend .l-av::before{border-style:dashed}
+.legend .l-mine::before{background:color-mix(in srgb,var(--accent) 30%,var(--bg2))}
+.legend .l-lock::before{border-color:var(--line)}
+.legend .l-gain::before{border:0;background:var(--gain)}
+.root{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:12px}
+.root::after{content:"";width:1px;height:12px;background:var(--accent-line)}
+.root .eyebrow{font-size:.62rem}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.colhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.colhead .pts{font:500 .78rem var(--f-mono);color:var(--accent)}
+.col h2{font-size:1.02rem;letter-spacing:.02em}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp .gt{font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+.grp.fork .gt::after{content:" · pick one";color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.node{position:relative;border:1px dashed var(--accent-line);background:var(--bg2);border-radius:7px;padding:6px 9px;min-width:46px;text-align:left;display:flex;flex-direction:column;gap:2px;line-height:1.2;transition:border-color .12s,transform .12s}
+.node:hover{border-color:var(--accent);transform:translateY(-1px)}
+.node .nm{font-weight:600;font-size:.82rem}
+.node .meta{font:400 .68rem var(--f-mono);color:var(--muted)}
+.node.sel{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 82%,#000));border:1px solid var(--accent);color:var(--accent-ink);box-shadow:0 1px 0 rgba(255,255,255,.15) inset}
+.node.sel .meta{color:var(--accent-ink);opacity:.8}
+.node.mine{border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 30%,var(--bg2));color:var(--ink)}
+.node.mine .meta{color:var(--ink);opacity:.75}
+.node.sel.partial{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 82%,#000))}
+.node.lock{border:1px solid var(--line);background:transparent;color:var(--muted)}
+.node.lock .nm{font-weight:500}
+.node.gated{opacity:.45}
+.node .meta b{color:var(--gain);font-weight:600}
+.node.sel .meta b{color:inherit}
+.node.focus{outline:2px solid var(--accent);outline-offset:2px}
+.track{display:inline-flex;align-items:stretch}
+.track .node{border-radius:0;margin-left:-1px}
+.track .node:first-child{border-radius:7px 0 0 7px;margin-left:0}
+.track .node:last-child{border-radius:0 7px 7px 0}
+.track .node .nm{font-family:var(--f-display)}
+.pips{display:flex;gap:2px;margin-top:2px}
+.pips i{width:6px;height:6px;border-radius:50%;border:1px solid currentColor;display:block}
+.pips i.on{background:currentColor}
+.pips i.mine{background:color-mix(in srgb,var(--accent) 45%,transparent);border-color:var(--accent)}
+.caps{margin-top:12px;background:linear-gradient(180deg,var(--accent-soft),var(--panel) 70%);border:1px solid var(--accent-line);border-radius:12px;padding:14px;display:grid;gap:8px}
+.note{color:var(--muted);font-size:.8rem;margin:0}
+
+/* rail */
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:12px}
+@media (max-width:980px){.rail{position:static}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card.hero{border-color:var(--accent-line);background:linear-gradient(180deg,var(--accent-soft),var(--panel) 55%)}
+.dps{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dps .big{font:700 3rem/1 var(--f-display);letter-spacing:.01em;color:var(--accent)}
+.dps .unit{font:500 .9rem var(--f-display);color:var(--muted)}
+.delta{font:500 .85rem var(--f-mono)}
+.delta.up{color:var(--good)} .delta.down{color:var(--danger)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:.84rem;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.over{color:var(--danger)}
+.stack{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:14px;background:var(--panel2)}
+.stack i{display:block;height:100%}
+.legendrows{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 10px;font-size:.8rem;margin-top:10px;align-items:center}
+.legendrows .sw{width:9px;height:9px;border-radius:2px}
+.legendrows .v{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.legendrows .p{font-family:var(--f-mono);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.bars{display:grid;gap:6px;margin-top:10px}
+.bar{display:grid;grid-template-columns:110px minmax(0,1fr) 64px;gap:8px;align-items:center;font-size:.8rem}
+.bar .track{height:10px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:3px}
+.bar .fill.v{background:var(--venom)} .bar .fill.b{background:var(--accent)}
+.bar .val{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.78rem;background:var(--bg)}
+.chip.on{border-color:var(--accent);background:var(--accent-soft)}
+.chip.off{text-decoration:line-through;color:var(--muted)}
+.chip.idle{color:var(--muted);border-style:dashed}
+.picks{display:grid;gap:4px;margin-top:8px}
+.pick{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:6px 8px}
+.pick:hover{border-color:var(--accent)}
+.pick .pn{font-weight:600;font-size:.84rem;min-width:0}
+.pick .pv{font:500 .8rem var(--f-mono);color:var(--gain);text-align:right}
+.pick .pc{grid-column:1/-1;font-size:.72rem;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.prog{height:4px;background:var(--panel2);border-radius:2px;overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+.detail h3{font-size:1rem}
+.detail p{margin:6px 0 0;font-size:.85rem}
+.detail .model{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);padding-top:6px;margin-top:8px}
+textarea{width:100%;min-height:52px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);font:.75rem var(--f-mono);padding:6px;resize:vertical}
+details.how{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+details.how summary{cursor:pointer;font-family:var(--f-display);font-weight:600}
+details.how ul{padding-left:18px;margin:8px 0 0;max-width:80ch} details.how li{margin:4px 0}
+.toast{min-height:1.2em;font-size:.8rem;color:var(--muted);margin-top:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
+</head>
+<body>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner" aria-current="page">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Void Idle · The Patient Hunter</div>
+      <h1>Bow <span class="tag">Planner</span></h1>
+      <p class="sub">Shot-by-shot fight simulation for the Bow mastery tree.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Optimize for">
+      <button id="m-single" aria-pressed="true">Single target</button>
+      <button id="m-aoe" aria-pressed="false">AoE</button>
+    </div>
+  </header>
+
+  <details class="stats" id="statsBox">
+    <summary><h2 style="font-size:1rem">Character &amp; fight</h2><span class="sumline" id="statSum"></span></summary>
+    <div class="statbody">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px">Character sheet, no aura</div>
+        <p class="note" style="margin:0 0 8px">The in-game sheet already includes your Bow tree. For fields marked "minus tree", subtract what the tree adds (Apex: +10% crit, +17% damage; Killing Shot and Marked Prey ranks) so it isn't counted twice.</p>
+        <div class="fields" id="f-char"></div>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px">Fight &amp; tree</div>
+        <div class="fields" id="f-fight"></div>
+      </div>
+    </div>
+  </details>
+
+  <div class="main">
+    <section>
+      <div class="treehead">
+        <div class="legend"><span class="l-sel">Taken</span><span class="l-mine">In my build, not selected</span><span class="l-av">Can take</span><span class="l-lock">Locked (click to take path)</span><span class="l-gain">Green % = DPS gain per point</span></div>
+        <div class="row"><button class="btn" id="resetBtn">Reset tree</button> <button class="btn" id="mineBtn">Load my build</button></div>
+      </div>
+      <div class="root" id="rootRow"></div>
+      <div class="cols" id="cols"></div>
+      <div class="caps" id="caps"></div>
+      <details class="how">
+        <summary>How the numbers are worked out</summary>
+        <ul>
+          <li>Each build is played out as a fight, one arrow at a time, at 0.05 s steps. The DPS shown is the average of 24 fights. Venom procs are rolled with fixed random seeds, so two builds always face the same luck.</li>
+          <li>Autos: Attack × (1 + Damage%) × vulnerable × (1 − enemy armor after shred) × average crit × hit chance. Execute damage is averaged over the share of the fight the target spends below 40% HP.</li>
+          <li>Abilities fire as soon as they are off cooldown and you have the mana. Cooldown reduction and Ability damage% apply. Abilities always hit. Only as many abilities as you have slots are used; if you know more, the best set is picked for you.</li>
+          <li>Rapid Fire makes the next 3–5 autos fire at double speed. Each one deals the listed % of Attack (Ability damage applies) and still counts as an auto for Venom, Master Archer and Hunter's Mark stacks.</li>
+          <li>Venom stacks are tracked properly: only procs refresh the 6 s timer, so they rarely sit at 5. Each auto costs 1 mana while the imbue is on.</li>
+          <li>Buffs and debuffs only count while they are active: Evasion's attack speed, Killer Instinct's crit, vulnerable, armor shred and damage-over-time effects.</li>
+          <li>The Hunter's Mark passive builds +3% per landed auto, up to 10 stacks. In AoE mode, stacks and debuffs reset each time a pack dies.</li>
+          <li>Not counted: dodge, healing, slows, and Marksman's Strength unless you enter how much Attack 1 STR gives. Cast times are treated as instant.</li>
+          <li>Tooltip wording is the only source for these rules. Where a tooltip is vague, the most literal reading is used, so check any big swing in-game.</li>
+        </ul>
+      </details>
+    </section>
+
+    <aside class="rail">
+      <div class="card hero">
+        <div class="eyebrow" id="modeLabel">Single target DPS</div>
+        <div class="dps"><span class="big num" id="dpsBig">—</span><span class="unit">DPS</span><span class="delta" id="dpsDelta"></span></div>
+        <dl class="kv">
+          <dt>Points spent</dt><dd id="kvPts"></dd>
+          <dt>Effective attack interval</dt><dd id="kvInt"></dd>
+          <dt>Crit · crit damage</dt><dd id="kvCrit"></dd>
+          <dt>Hit chance</dt><dd id="kvHit"></dd>
+          <dt>Avg vulnerable on target</dt><dd id="kvVuln"></dd>
+          <dt>Avg armor removed</dt><dd id="kvShred"></dd>
+          <dt>Avg Venom stacks</dt><dd id="kvVen"></dd>
+          <dt>Avg Mark stacks</dt><dd id="kvMark"></dd>
+          <dt>Time waiting on mana</dt><dd id="kvMana"></dd>
+        </dl>
+        <div class="stack" id="stack"></div><div class="legendrows" id="bars"></div>
+        <div class="eyebrow" style="margin-top:12px">Abilities in use <span style="text-transform:none;letter-spacing:0">· click to bench</span></div>
+        <div class="chips" id="abChips"></div>
+        <div class="actions">
+          <button class="btn" id="pinBtn">Set as baseline</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Best next points</div>
+        <div class="picks" id="picks"><p class="note">Working…</p></div>
+        <div class="actions">
+          <button class="btn primary" id="optBtn">Optimize build</button>
+          <button class="btn" id="deepBtn">Deep search</button>
+        </div>
+        <div class="prog" id="prog" hidden><i></i></div>
+        <div class="toast" id="optMsg"></div>
+      </div>
+
+      <div class="card detail" id="detail">
+        <div class="eyebrow">Node details</div>
+        <h3 id="dName">Hover or tap a node</h3>
+        <p id="dDesc" class="note">Its tooltip, cost and how this planner counts it will show here.</p>
+        <p id="dModel" class="model" hidden></p>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Build code</div>
+        <textarea id="code" aria-label="Build code" spellcheck="false"></textarea>
+        <div class="actions">
+          <button class="btn" id="copyBtn">Copy code</button>
+          <button class="btn" id="loadBtn">Load pasted code</button>
+        </div>
+        <div class="toast" id="codeMsg"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+// ---------- Tree data (from the Bow tree in the Void Idle build calculator) ----------
+const RAW=[
+["venom_tip","Venom Tip","imbue",1,1,null,null,null,"Imbue (toggle) — coat your arrows in venom. Auto-attacks have a 25% chance to deal +9.6% ATK bonus damage and stack Venom on the target, cutting its armor by 4% per stack (up to 5). Each proc adds a stack and refreshes the 6s timer (hits that do not proc do not refresh it). 1 mana/hit"],
+["arrow_shower_1","Arrow Shower I","active",1,1,"venom_tip",null,null,"Rain arrows on the whole pack — 57% ATK to every enemy. Shreds 4% DEF for 6s. CD 14s. Mana 30"],
+["arrow_shower_2","Arrow Shower II","tier",2,1,"arrow_shower_1",null,null,"82% ATK to every enemy. Shreds 6% DEF for 6s. CD 13s. Mana 45"],
+["arrow_shower_3","Arrow Shower III","tier",3,1,"arrow_shower_2",null,null,"108% ATK to every enemy. Shreds 7% DEF for 6s. CD 12s. Mana 60"],
+["arrow_shower_4","Arrow Shower IV","tier4",5,1,"arrow_shower_3",null,null,"133% ATK to every enemy. Shreds 9% DEF for 6s. CD 11s. Mana 75"],
+["as_acid","Acid Rain","passive",2,1,"arrow_shower_2",null,"as_rain","+20% stronger DEF shred, applies vulnerable 8% for 6s."],
+["as_downpour","Downpour","passive",2,1,"arrow_shower_2",null,"as_rain","Pins the whole pack in place. +20% damage."],
+["as_soak","Soak","passive",2,1,"arrow_shower_2",null,"as_rain","A lingering pool. Leaves a DoT (6%/s for 6s)."],
+["piercing_shot_1","Piercing Shot I","active",2,1,"arrow_shower_2",null,null,"A single focused shot for 114% ATK. Ignores DEF. CD 22s. Mana 53"],
+["piercing_shot_2","Piercing Shot II","tier",3,1,"piercing_shot_1",null,null,"152% ATK. Ignores DEF. CD 22s. Mana 68"],
+["piercing_shot_3","Piercing Shot III","tier",4,1,"piercing_shot_2",null,null,"190% ATK. Ignores DEF. CD 22s. Mana 83"],
+["piercing_shot_4","Piercing Shot IV","tier4",5,1,"piercing_shot_3",null,null,"234% ATK. Ignores DEF. CD 22s. Mana 90"],
+["ps_crippling","Crippling","passive",2,1,"piercing_shot_2",null,"ps_pierce","Applies slow 20% for 6s, applies vulnerable 8% for 6s."],
+["ps_serrated","Serrated","passive",2,1,"piercing_shot_2",null,"ps_pierce","A jagged tip. Leaves a DoT (11%/s for 6s)."],
+["ps_sniper","Sniper","passive",2,1,"piercing_shot_2",null,"ps_pierce","Bigger, slower, deadlier. +25% damage, +30% cooldown."],
+["marksmans_str_1","Marksman's Strength I","passive",1,1,"arrow_shower_1",null,null,"+1 STR."],
+["marksmans_str_2","Marksman's Strength II","passive",1,1,"marksmans_str_1",null,null,"+1 STR."],
+["marksmans_str_3","Marksman's Strength III","passive",1,1,"marksmans_str_2",null,null,"+1 STR."],
+["marksmans_str_4","Marksman's Strength IV","passive",1,1,"marksmans_str_3",null,null,"+2 STR."],
+["eagle_sight","Eagle Sight","passive",3,1,"marksmans_str_4",null,null,"Against any enemy you've already debuffed, your auto-attacks never miss."],
+["wind_reader","Wind Reader","passive",1,1,"arrow_shower_1",null,null,"+1.3% crit chance."],
+["martyr","Martyr","capstone",8,1,"arrow_shower_3",null,"bow_keystone","Inversion capstone — you take +25% damage, but you deal +25% more."],
+["precision","Precision","capstone",8,1,"arrow_shower_3",null,"bow_keystone","Inversion capstone — you can never crit, but every hit lands for full crit-tier damage."],
+["single_arrow","Single Arrow","capstone",8,1,"arrow_shower_3",null,"bow_keystone","Inversion capstone — no more multishot: every auto is one arrow that always pierces armor and hits 40% harder."],
+["unbound","Unbound","capstone",8,1,"arrow_shower_3",null,"bow_keystone","Inversion capstone — damage abilities lose their cooldowns (1s floor), but every ability hits for half and costs 2× mana. Support abilities keep their cooldowns."],
+["keen_eye","Keen Eye","passive",1,4,"venom_tip",null,null,"A permanent boost to your hit chance.",["+2% hit chance","+3% hit chance","+5% hit chance","+7% hit chance"]],
+["eagle_eye","Eagle Eye","passive",1,1,"keen_eye",null,null,"+2% hit chance."],
+["marked_prey_1","Marked Prey I","passive",1,1,"keen_eye",null,null,"+0.7% damage."],
+["marked_prey_2","Marked Prey II","passive",1,1,"marked_prey_1",null,null,"+0.7% damage."],
+["marked_prey_3","Marked Prey III","passive",1,1,"marked_prey_2",null,null,"+0.7% damage."],
+["marked_prey_4","Marked Prey IV","passive",1,1,"marked_prey_3",null,null,"+0.7% damage."],
+["hunters_mark","Hunter's Mark (passive)","passive",3,1,"marked_prey_4",null,null,"Keep firing at one enemy: each hit stacks +3% auto-attack damage on that target (up to 10). Switch targets or let it die and the stacks reset."],
+["parasitic_1","Parasitic Arrow I","active",2,1,"keen_eye",null,null,"95% ATK. Applies 7% vulnerable for 10s. CD 18s. Mana 45"],
+["parasitic_2","Parasitic Arrow II","tier",3,1,"parasitic_1",null,null,"127% ATK. Applies 9% vulnerable for 10s. CD 18s. Mana 53"],
+["parasitic_3","Parasitic Arrow III","tier",4,1,"parasitic_2",null,null,"162% ATK. Applies 11% vulnerable for 10s. CD 18s. Mana 68"],
+["parasitic_4","Parasitic Arrow IV","tier4",5,1,"parasitic_3",null,null,"203% ATK. Applies 13% vulnerable for 10s. CD 18s. Mana 75"],
+["pa_festering","Festering","passive",2,1,"parasitic_2",null,"pa_parasit","+20% stronger vulnerable."],
+["pa_hemotoxin","Hemotoxin","passive",2,1,"parasitic_2",null,"pa_parasit","Leaves a DoT (11%/s for 6s)."],
+["pa_leech","Leech","passive",2,1,"parasitic_2",null,"pa_parasit","Heals 12% of the damage dealt."],
+["pa_heavy","Heavy","passive",2,1,"parasitic_3",null,"pa_shot","+18% damage, +10% cooldown."],
+["pa_pierce","Pierce","passive",2,1,"parasitic_3",null,"pa_shot","Ignores DEF (true damage)."],
+["pa_quick","Quickshot","passive",2,1,"parasitic_3",null,"pa_shot","-30% cooldown."],
+["hunters_mark_1","Hunter's Mark I","active",2,1,"parasitic_2",null,null,"89% ATK marking shot. Applies 13% vulnerable and shreds 10% DEF for 23s. CD 30s. Mana 53"],
+["hunters_mark_2","Hunter's Mark II","tier",3,1,"hunters_mark_1",null,null,"101% ATK. 16% vulnerable, shreds 13% DEF for 23s. CD 30s. Mana 60"],
+["hunters_mark_3","Hunter's Mark III","tier",4,1,"hunters_mark_2",null,null,"114% ATK. 19% vulnerable, shreds 16% DEF for 23s. CD 30s. Mana 75"],
+["hunters_mark_4","Hunter's Mark IV","tier4",5,1,"hunters_mark_3",null,null,"127% ATK. 22% vulnerable, shreds 20% DEF for 23s. CD 30s. Mana 83"],
+["hm_exposed","Exposed","passive",2,1,"hunters_mark_2",null,"hm_mark","Applies DEF shred 15% for 23s."],
+["hm_lingering","Lingering","passive",2,1,"hunters_mark_2",null,"hm_mark","The mark lasts 5% longer."],
+["hm_quarry","Quarry","passive",2,1,"hunters_mark_2",null,"hm_mark","+25% stronger vulnerable."],
+["rapid_draw","Killing Shot","passive",1,4,"venom_tip",null,null,"A permanent boost to your critical damage.",["+6.7% crit damage","+10.1% crit damage","+13.4% crit damage","+16.8% crit damage"]],
+["steady_aim","Steady Aim","passive",1,1,"rapid_draw",null,null,"+1.3% attack speed."],
+["sharpened_tip_1","Sharpened Tip I","passive",1,1,"rapid_draw",null,null,"+0.7% damage."],
+["sharpened_tip_2","Sharpened Tip II","passive",1,1,"sharpened_tip_1",null,null,"+0.7% damage."],
+["sharpened_tip_3","Sharpened Tip III","passive",1,1,"sharpened_tip_2",null,null,"+0.7% damage."],
+["sharpened_tip_4","Sharpened Tip IV","passive",1,1,"sharpened_tip_3",null,null,"+0.7% damage."],
+["true_aim","True Aim","passive",3,1,"sharpened_tip_4",null,null,"Your auto-attacks pierce 15% of enemy armor."],
+["rapid_fire_1","Rapid Fire I","active",2,1,"rapid_draw",null,null,"Your next 3 shots fire at double speed for 57% ATK each (for 15s). CD 20s. Mana 45"],
+["rapid_fire_2","Rapid Fire II","tier",3,1,"rapid_fire_1",null,null,"Next 4 shots at double speed for 67% ATK each. CD 20s. Mana 60"],
+["rapid_fire_3","Rapid Fire III","tier",4,1,"rapid_fire_2",null,null,"Next 5 shots at double speed for 76% ATK each. CD 20s. Mana 75"],
+["rapid_fire_4","Rapid Fire IV","tier4",5,1,"rapid_fire_3",null,null,"Next 5 shots at double speed for 89% ATK each. CD 20s. Mana 90"],
+["rf_aimed","Aimed","passive",2,1,"rapid_fire_2",null,"rf_salvo","Every shot in the volley is a guaranteed crit."],
+["rf_overdraw","Overdraw","passive",2,1,"rapid_fire_2",null,"rf_salvo","+18% damage."],
+["rf_phantom","Phantom Volley","passive",2,1,"rapid_fire_2",null,"rf_salvo","Grants 45% dodge chance for 10s."],
+["rf_salvo","Salvo","passive",2,1,"rapid_fire_2",null,"rf_salvo","+1 hit."],
+["evasion_1","Evasion I","active",2,1,"rapid_fire_2",null,null,"+11% dodge and +15% attack speed for 6s. CD 30s. Mana 30"],
+["evasion_2","Evasion II","tier",3,1,"evasion_1",null,null,"+14% dodge and +20% attack speed for 7s. CD 30s. Mana 45"],
+["evasion_3","Evasion III","tier",4,1,"evasion_2",null,null,"+18% dodge and +25% attack speed for 8s. CD 30s. Mana 60"],
+["evasion_4","Evasion IV","tier4",5,1,"evasion_3",null,null,"+22% dodge and +30% attack speed for 10s. CD 30s. Mana 75"],
+["ev_dodge","Dodge","passive",2,1,"evasion_2",null,"ev_evade","+20% dodge chance."],
+["ev_lasting","Killer Instinct","passive",2,1,"evasion_2",null,"ev_evade","+15% crit chance while Evasion is active."],
+["ev_mend","Mend","passive",2,1,"evasion_2",null,"ev_evade","Heals 8% of your max HP when cast."],
+["apex_predator","Apex Predator","capstone",8,1,null,["parasitic_3","rapid_fire_3","arrow_shower_3"],"bow_capstone","Capstone — +17% all damage and +10% crit chance, with no multishot. Needs Parasitic Arrow III, Rapid Fire III and Arrow Shower III."],
+["master_archer","Master Archer","capstone",8,1,null,["parasitic_3","rapid_fire_3","arrow_shower_3"],"bow_capstone","Capstone — every 5th auto-attack looses 2 extra arrows, each dealing 50% of that hit's damage. Needs Parasitic Arrow III, Rapid Fire III and Arrow Shower III."]
+];
+const MODEL={
+  venom_tip:"Procs are rolled per landed auto. Stacks decay when 6 s pass with no proc. Toggle the imbue off in Fight settings to save mana.",
+  marksmans_str_1:"Counts only if you enter Attack per STR in Fight settings.",marksmans_str_2:"Counts only if you enter Attack per STR.",marksmans_str_3:"Counts only if you enter Attack per STR.",marksmans_str_4:"Counts only if you enter Attack per STR.",
+  eagle_sight:"Autos hit 100% while any debuff (Venom, shred, vulnerable, DoT) is on the target.",
+  pa_leech:"Healing only, adds no DPS.",ev_dodge:"Defensive only, adds no DPS.",ev_mend:"Healing only, adds no DPS.",rf_phantom:"Defensive only, adds no DPS.",
+  ps_crippling:"The 8% vulnerable counts; the slow does not.",
+  martyr:"+25% damage, multiplied with your sheet Damage%. The extra damage taken is ignored.",
+  precision:"Every hit uses your full crit damage multiplier. Crit chance becomes worthless.",
+  single_arrow:"Autos ignore all armor and deal ×1.4. Turns off Master Archer's extra arrows.",
+  unbound:"Arrow Shower, Parasitic, Piercing and Rapid Fire go to a 1 s cooldown, hit for half and cost 2× mana. Hunter's Mark and Evasion keep their cooldowns but still hit for half and cost double.",
+  apex_predator:"+17% damage and +10% crit chance.",master_archer:"Every 5th auto (Rapid Fire shots included) deals double. Disabled by Single Arrow.",
+  hunters_mark:"+3% auto damage per landed auto, up to 10 stacks. In AoE mode stacks reset when each pack dies.",
+  evasion_1:"Cast on cooldown. Attack speed counts only while it lasts.",
+  ev_lasting:"+15% crit only while Evasion is up.",
+  rf_salvo:"One extra double-speed shot per Rapid Fire.",rf_aimed:"Rapid Fire shots always crit.",
+  true_aim:"Autos ignore 15% of the target's remaining armor.",
+  hm_lingering:"Mark debuffs last 5% longer."
+};
+const N=RAW.map(r=>({id:r[0],name:r[1],t:r[2],c:r[3],m:r[4],p:r[5],rq:r[6]||[],f:r[7],d:r[8],ranks:r[9]||null}));
+const byId=Object.fromEntries(N.map(n=>[n.id,n]));
+
+// ---------- Settings ----------
+const CHAR=[
+ ["atk","Attack","",1164],["interval","Attack interval","s",1.123],["hit","Hit chance (minus Bow tree)","%",92.25],["crit","Crit chance (minus tree)","%",47.6],
+ ["critDmg","Crit damage (minus tree)","%",306.41],["execute","Execute damage","%",13.5],["ability","Ability damage","%",28.5],["damage","Damage (minus tree)","%",32.85],
+ ["boss","Boss damage","%",11],["cdr","Cooldown reduction","%",26.7],["regen","Mana regen","/10s",88.4],["maxMana","Max mana","",2269]
+];
+const FIGHT=[
+ ["points","Mastery points","pts",55],["mastery","Mastery level","",55],["slots","Ability slots","",4],["fight","Fight length","s",300],
+ ["armor","Enemy damage absorbed","%",40],["execFrac","Time below 40% HP","%",40],["enemies","Enemies in pack","AoE",3],["packLife","Pack lifetime","s · AoE",15],
+ ["atkPerStr","Attack per STR","",1.67],["partyVuln","Vulnerable from party","%",0]
+];
+const CHECKS=[["targetBoss","Target is a boss",false],["venomOn","Venom imbue on",true],["party","Party play: skip defensive nodes",true],["vulnMax","Vulnerable: only strongest applies",false]];
+const DEFENSIVE=new Set(["evasion_1","evasion_2","evasion_3","evasion_4","ev_dodge","ev_lasting","ev_mend","rf_phantom","pa_leech"]);
+const DEFAULT_SEL={venom_tip:1,keen_eye:1,steady_aim:1,marked_prey_1:1,marked_prey_2:1,marked_prey_3:1,marked_prey_4:1,hunters_mark:1,parasitic_1:1,parasitic_2:1,parasitic_3:1,rapid_draw:3,rapid_fire_1:1,rapid_fire_2:1,rapid_fire_3:1,rf_aimed:1,arrow_shower_1:1,arrow_shower_2:1,arrow_shower_3:1,single_arrow:1,apex_predator:1};
+const MY_BUILD={...DEFAULT_SEL};
+let S={mode:"single",off:{}};
+for(const f of [...CHAR,...FIGHT])S[f[0]]=f[3];
+for(const c of CHECKS)S[c[0]]=c[2];
+let sel={...DEFAULT_SEL};
+let baseline=null;
+try{const saved=JSON.parse(localStorage.getItem("bowplanner.v10")||"null");if(saved){Object.assign(S,saved.S||{});if(S.mastery===70)S.mastery=54;if(saved.sel)sel=saved.sel;baseline=saved.baseline??null}}catch(e){}
+function save(){try{localStorage.setItem("bowplanner.v10",JSON.stringify({S,sel,baseline}))}catch(e){}}
+
+// ---------- Tree rules ----------
+const has=(s,id)=>(s[id]||0)>0;
+const maxR=n=>n.t==="tier4"?(S.mastery>=60?1:0):n.m;
+const spent=s=>Object.entries(s).reduce((a,[id,r])=>a+(byId[id]?byId[id].c*r:0),0);
+function removeNode(s,id){delete s[id];for(const n of N){if(s[n.id]&&(n.p===id||n.rq.includes(id)))removeNode(s,n.id)}}
+function pathFor(s,id){
+  const n=byId[id];if(!n)return null;
+  if(has(s,id)){if(s[id]<maxR(n))return {add:{[id]:1},cost:n.c};return null}
+  const need={};
+  const want=x=>{if(has(s,x)||need[x])return true;const k=byId[x];if(maxR(k)<1)return false;if(k.p&&!want(k.p))return false;for(const r of k.rq)if(!want(r))return false;need[x]=1;return true};
+  if(!want(id))return null;
+  const ids=Object.keys(need);
+  for(const x of ids){const f=byId[x].f;if(!f)continue;for(const o of N)if(o.f===f&&o.id!==x&&(has(s,o.id)||need[o.id]))return null}
+  return {add:need,cost:ids.reduce((a,x)=>a+byId[x].c,0)};
+}
+function searchPath(s,id){if(S.party&&DEFENSIVE.has(id))return null;return pathFor(s,id)}
+function applyPath(s,p){const o={...s};for(const k in p.add)o[k]=(o[k]||0)+p.add[k];return o}
+
+// ---------- Model ----------
+function params(s){
+  const h=id=>has(s,id),rk=id=>s[id]||0;
+  const tier=f=>{for(let i=4;i>=1;i--)if(h(f+"_"+i))return i;return 0};
+  const str=["marksmans_str_1","marksmans_str_2","marksmans_str_3"].filter(h).length+(h("marksmans_str_4")?2:0);
+  const small=["marked_prey_1","marked_prey_2","marked_prey_3","marked_prey_4","sharpened_tip_1","sharpened_tip_2","sharpened_tip_3","sharpened_tip_4"].filter(h).length*.007;
+  const P={
+    atk:S.atk+str*S.atkPerStr,
+    interval:S.interval/(1+(h("steady_aim")?.013:0)),
+    hit:Math.min(.95,S.hit/100+(h("eagle_eye")?.02:0)+[0,.02,.03,.05,.07][rk("keen_eye")]),
+    crit:S.crit/100+(h("wind_reader")?.013:0)+(h("apex_predator")?.10:0),
+    critDmg:Math.max(1,S.critDmg/100+[0,.067,.101,.134,.168][rk("rapid_draw")]),
+    dmgM:1+S.damage/100+small+(h("apex_predator")?.17:0)+(h("martyr")?.25:0),
+    abilM:1+S.ability/100, boss:S.targetBoss?1+S.boss/100:1, exec:1+S.execute/100*S.execFrac/100,
+    armor:Math.min(.95,S.armor/100), cdr:Math.min(.9,S.cdr/100), regen:S.regen/10, maxMana:S.maxMana,
+    precision:h("precision"), single:h("single_arrow"), ma:h("master_archer"), unbound:h("unbound"),
+    trueAim:h("true_aim"), eagleSight:h("eagle_sight"), hmPassive:h("hunters_mark"), venom:h("venom_tip")&&S.venomOn, ki:h("ev_lasting"),
+    abilities:[]
+  };
+  const U=P.unbound, half=U?.5:1, mm=m=>m*(U?2:1), cdDmg=b=>U?1:b*(1-P.cdr), cdSup=b=>b*(1-P.cdr);
+  let r;
+  if(r=tier("hunters_mark"))P.abilities.push({key:"HM",name:"Hunter's Mark",pct:[.89,1.01,1.14,1.27][r-1]*half,cd:cdSup(30),mana:mm([53,60,75,83][r-1]),vuln:[.13,.16,.19,.22][r-1]*(h("hm_quarry")?1.25:1),shred:[.10,.13,.16,.20][r-1],dur:23*(h("hm_lingering")?1.05:1),exposed:h("hm_exposed")});
+  if(r=tier("evasion"))P.abilities.push({key:"EV",name:"Evasion",cd:cdSup(30),mana:mm([30,45,60,75][r-1]),speed:[.15,.20,.25,.30][r-1],dur:[6,7,8,10][r-1]});
+  if(r=tier("arrow_shower"))P.abilities.push({key:"AS",name:"Arrow Shower",pct:[.57,.82,1.08,1.33][r-1]*half*(h("as_downpour")?1.2:1),cd:cdDmg([14,13,12,11][r-1]),mana:mm([30,45,60,75][r-1]),shred:[.04,.06,.07,.09][r-1]*(h("as_acid")?1.2:1),acid:h("as_acid")?.08:0,soak:h("as_soak")?.06:0});
+  if(r=tier("parasitic"))P.abilities.push({key:"PA",name:"Parasitic Arrow",pct:[.95,1.27,1.62,2.03][r-1]*half*(h("pa_heavy")?1.18:1),cd:cdDmg(18*(h("pa_heavy")?1.1:1)*(h("pa_quick")?.7:1)),mana:mm([45,53,68,75][r-1]),vuln:[.07,.09,.11,.13][r-1]*(h("pa_festering")?1.2:1),dot:h("pa_hemotoxin")?.11:0,pierce:h("pa_pierce")});
+  if(r=tier("piercing_shot"))P.abilities.push({key:"PS",name:"Piercing Shot",pct:[1.14,1.52,1.90,2.34][r-1]*half*(h("ps_sniper")?1.25:1),cd:cdDmg(22*(h("ps_sniper")?1.3:1)),mana:mm([53,68,83,90][r-1]),crip:h("ps_crippling"),dot:h("ps_serrated")?.11:0});
+  if(r=tier("rapid_fire"))P.abilities.push({key:"RF",name:"Rapid Fire",shots:[3,4,5,5][r-1]+(h("rf_salvo")?1:0),pct:[.57,.67,.76,.89][r-1]*half*(h("rf_overdraw")?1.18:1),cd:cdDmg(20),mana:mm([45,60,75,90][r-1]),aimed:h("rf_aimed")});
+  return P;
+}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const newT=()=>({v:{},s:{},d:{},vs:0,vu:-1,m:0});
+function sim(P,abs,runs,dt,full){
+  const D=S.fight, aoe=S.mode==="aoe", NE=aoe?Math.max(1,S.enemies|0):1, life=aoe?Math.max(1,S.packLife):Infinity;
+  const B={auto:0,rapid:0,multishot:0,venom:0,HM:0,AS:0,PA:0,PS:0,dot:0};
+  const A={vuln:0,shred:0,vst:0,mark:0,starved:0,casts:{},time:0};
+  for(const a of abs)A.casts[a.key]=0;
+  const common=P.dmgM*P.boss*P.exec;
+  const PV=(S.partyVuln||0)/100,VM=!!S.vulnMax;const vulnOf=(X,t)=>{let s=VM?PV:0,m=PV;for(const k in X.v){const e=X.v[k];if(e[1]>t){if(VM){if(e[0]>m)m=e[0]}else s+=e[0]}}return VM?m:s+PV};
+  const shredOf=(X,t)=>{let s=X.vu>t?X.vs*.04:0;for(const k in X.s){const e=X.s[k];if(e[1]>t)s+=e[0]}return s>1?1:s};
+  const dotOn=(X,t)=>{for(const k in X.d)if(X.d[k][1]>t)return true;return false};
+  for(let run=0;run<runs;run++){
+    const rng=mulberry(9173+run*7919);
+    let mana=P.maxMana,next=0,rfShots=0,rfUntil=-1,rf=null,evUntil=-1,evSpeed=0,count=0,respawn=life;
+    const ready={};for(const a of abs)ready[a.key]=0;
+    let T=newT(),K=newT();
+    const mitOf=(X,t,kind)=>{if(kind==="pierce")return 0;if(kind==="auto"&&P.single)return 0;let m=P.armor*(1-shredOf(X,t));if(kind==="auto"&&P.trueAim)m*=.85;return m};
+    const cexp=t=>P.precision?P.critDmg:1+Math.min(1,P.crit+(P.ki&&t<evUntil?.15:0))*(P.critDmg-1);
+    const hitAb=(X,t,pct,pierce)=>P.atk*pct*common*P.abilM*(1+vulnOf(X,t))*(1-mitOf(X,t,pierce?"pierce":"ab"))*cexp(t);
+    const curInt=t=>{let i=P.interval/(1+(t<evUntil?evSpeed:0));if(rfShots>0&&t<rfUntil)i/=2;return i};
+    const cast=(a,t)=>{
+      mana-=a.mana;ready[a.key]=t+Math.max(.05,a.cd);A.casts[a.key]++;
+      if(a.key==="HM"){B.HM+=hitAb(T,t,a.pct,false);T.v.hm=[a.vuln,t+a.dur];T.s.hm=[a.shred,t+a.dur];if(a.exposed)T.s.hmx=[.15,t+a.dur]}
+      else if(a.key==="EV"){evUntil=t+a.dur;evSpeed=a.speed}
+      else if(a.key==="AS"){B.AS+=hitAb(T,t,a.pct,false);if(NE>1)B.AS+=hitAb(K,t,a.pct,false)*(NE-1);
+        for(const X of NE>1?[T,K]:[T]){X.s.as=[a.shred,t+6];if(a.acid)X.v.acid=[a.acid,t+6];if(a.soak)X.d.soak=[a.soak,t+6]}}
+      else if(a.key==="PA"){B.PA+=hitAb(T,t,a.pct,a.pierce);T.v.pa=[a.vuln,t+10];if(a.dot)T.d.hemo=[a.dot,t+6]}
+      else if(a.key==="PS"){B.PS+=hitAb(T,t,a.pct,true);if(a.crip)T.v.crip=[.08,t+6];if(a.dot)T.d.serr=[a.dot,t+6]}
+      else if(a.key==="RF"){rfShots=a.shots;rfUntil=t+15;rf=a;if(next>t)next=t+(next-t)/2}
+    };
+    const fire=ta=>{
+      const isRF=rfShots>0&&ta<rfUntil;if(!isRF)rfShots=0;
+      const hp=P.eagleSight&&(vulnOf(T,ta)>0||shredOf(T,ta)>0||dotOn(T,ta))?1:P.hit;
+      const v=1+vulnOf(T,ta),mit=mitOf(T,ta,"auto");
+      let base,cm,bucket;
+      if(isRF){base=P.atk*rf.pct*P.abilM;cm=rf.aimed?P.critDmg:cexp(ta);rfShots--;bucket="rapid"}
+      else{base=P.atk;cm=cexp(ta);bucket="auto"}
+      const mark=P.hmPassive?1+.03*T.m:1;
+      const d=base*common*v*(1-mit)*cm*hp*mark*(P.single?1.4:1);
+      B[bucket]+=d;count++;
+      if(P.ma&&!P.single&&count%5===0)B.multishot+=d;
+      if(P.hmPassive)T.m=Math.min(10,T.m+hp);
+      if(P.venom&&mana>=1){mana-=1;if(rng()<hp*.25){B.venom+=P.atk*.096*common*v*(1-mit);T.vs=T.vu>ta?Math.min(5,T.vs+1):1;T.vu=ta+6}}
+    };
+    const steps=Math.ceil(D/dt);
+    for(let i=0;i<steps;i++){
+      const t=i*dt;
+      if(t>=respawn){T=newT();K=newT();respawn+=life}
+      mana=Math.min(P.maxMana,mana+P.regen*dt);
+      let starved=false;
+      for(const a of abs){if(t>=ready[a.key]){if(mana>=a.mana)cast(a,t);else starved=true}}
+      while(next<=t){fire(next);next+=curInt(next)}
+      for(const X of NE>1?[T,K]:[T]){const mult=X===K?NE-1:1;
+        for(const k in X.d){const e=X.d[k];if(e[1]>t)B.dot+=P.atk*e[0]*common*P.abilM*(1+vulnOf(X,t))*(1-mitOf(X,t,"ab"))*dt*mult}}
+      if(full){A.vuln+=vulnOf(T,t)*dt;A.shred+=(P.single?1:shredOf(T,t))*dt;A.vst+=(T.vu>t?T.vs:0)*dt;A.mark+=T.m*dt;if(starved)A.starved+=dt}
+    }
+  }
+  const tot=D*runs;for(const k in B)B[k]/=tot;
+  const dps=Object.values(B).reduce((a,b)=>a+b,0);
+  return {dps,B,A:{vuln:A.vuln/tot,shred:A.shred/tot,vst:A.vst/tot,mark:A.mark/tot,starved:A.starved/tot,casts:A.casts}};
+}
+function combos(arr,k){const out=[];const go=(i,c)=>{if(c.length===k){out.push(c.slice());return}for(let j=i;j<arr.length;j++){c.push(arr[j]);go(j+1,c);c.pop()}};go(0,[]);return out}
+function evaluate(s,runs=24,dt=.05,full=true){
+  const P=params(s);
+  const learned=P.abilities, usable=learned.filter(a=>!S.off[a.key]&&!(S.party&&a.key==="EV"));
+  const slots=Math.max(0,S.slots|0);
+  let best=null,use=usable;
+  if(usable.length>slots){
+    for(const c of combos(usable,slots)){const r=sim(P,c,Math.max(2,Math.round(runs/3)),dt,false);if(!best||r.dps>best.dps){best=r;use=c}}
+  }
+  const res=sim(P,use,runs,dt,full);
+  res.P=P;res.use=use.map(a=>a.key);res.learned=learned;return res;
+}
+
+// ---------- UI ----------
+const $=id=>document.getElementById(id);
+const fmt=(x,d=0)=>x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:d});
+function buildFields(){
+  const mk=(host,list)=>{host.innerHTML="";for(const [k,label,unit] of list){const w=document.createElement("div");w.className="field";
+    w.innerHTML=`<label for="s-${k}"><span>${label}</span><span>${unit}</span></label><input id="s-${k}" type="number" step="any" inputmode="decimal">`;
+    const inp=w.querySelector("input");inp.value=S[k];inp.addEventListener("change",()=>{const v=parseFloat(inp.value);if(!isNaN(v)){S[k]=v;if(k==="mastery")prune();changed()}});host.appendChild(w)}};
+  mk($("f-char"),CHAR);mk($("f-fight"),FIGHT);
+  for(const [k,label] of CHECKS){const w=document.createElement("div");w.className="field check";
+    w.innerHTML=`<input id="s-${k}" type="checkbox"><label for="s-${k}">${label}</label>`;const inp=w.querySelector("input");inp.checked=!!S[k];
+    inp.addEventListener("change",()=>{S[k]=inp.checked;changed()});$("f-fight").appendChild(w)}
+}
+function prune(){for(const n of N)if(n.t==="tier4"&&has(sel,n.id)&&maxR(n)<1)removeNode(sel,n.id)}
+const GROUPS=[
+ [0,"Arrow Shower",["arrow_shower_1","arrow_shower_2","arrow_shower_3","arrow_shower_4"]],
+ [0,"Arrow Shower upgrade (II)",["as_acid","as_downpour","as_soak"],1],
+ [0,"Piercing Shot (from AS II)",["piercing_shot_1","piercing_shot_2","piercing_shot_3","piercing_shot_4"]],
+ [0,"Piercing Shot upgrade (II)",["ps_crippling","ps_serrated","ps_sniper"],1],
+ [0,"Marksman's Strength → Eagle Sight",["marksmans_str_1","marksmans_str_2","marksmans_str_3","marksmans_str_4","eagle_sight"]],
+ [0,"Crit",["wind_reader"]],
+ [0,"Inversion capstone (AS III)",["martyr","precision","single_arrow","unbound"],1],
+ [1,"Hit chance",["keen_eye","eagle_eye"]],
+ [1,"Marked Prey → Hunter's Mark passive",["marked_prey_1","marked_prey_2","marked_prey_3","marked_prey_4","hunters_mark"]],
+ [1,"Parasitic Arrow",["parasitic_1","parasitic_2","parasitic_3","parasitic_4"]],
+ [1,"Parasitic upgrade (II)",["pa_festering","pa_hemotoxin","pa_leech"],1],
+ [1,"Parasitic shot (III)",["pa_heavy","pa_pierce","pa_quick"],1],
+ [1,"Hunter's Mark (from PA II)",["hunters_mark_1","hunters_mark_2","hunters_mark_3","hunters_mark_4"]],
+ [1,"Hunter's Mark upgrade (II)",["hm_exposed","hm_lingering","hm_quarry"],1],
+ [2,"Crit damage & speed",["rapid_draw","steady_aim"]],
+ [2,"Sharpened Tip → True Aim",["sharpened_tip_1","sharpened_tip_2","sharpened_tip_3","sharpened_tip_4","true_aim"]],
+ [2,"Rapid Fire",["rapid_fire_1","rapid_fire_2","rapid_fire_3","rapid_fire_4"]],
+ [2,"Rapid Fire upgrade (II)",["rf_aimed","rf_overdraw","rf_phantom","rf_salvo"],1],
+ [2,"Evasion (from RF II)",["evasion_1","evasion_2","evasion_3","evasion_4"]],
+ [2,"Evasion upgrade (II)",["ev_dodge","ev_lasting","ev_mend"],1]
+];
+const COLS=["Arrow Shower path","Keen Eye path","Killing Shot path"];
+const ROMAN=["I","II","III","IV"];
+let marg={}, focusId=null;
+function label(n){
+  if(["active","tier","tier4"].includes(n.t))return ROMAN[+n.id.slice(-1)-1];
+  const m=n.name.match(/ (I|II|III|IV)$/);if(m)return m[1];
+  return n.name;
+}
+const isTier=n=>/ (I|II|III|IV)$/.test(n.name);
+function nodeEl(n){
+  const b=document.createElement("button");b.className="node";b.dataset.id=n.id;
+  const r=sel[n.id]||0,mx=maxR(n),direct=!r&&(!n.p||has(sel,n.p))&&n.rq.every(x=>has(sel,x))&&mx>0&&pathFor(sel,n.id);
+  const mr=MY_BUILD[n.id]||0;if(r)b.classList.add("sel");else if(mr)b.classList.add("mine");else if(!direct)b.classList.add("lock");
+  if(mx<1)b.classList.add("gated");
+  if(focusId===n.id)b.classList.add("focus");
+  const g=marg[n.id],gain=!r&&g&&g.pp>=.05?` · <b>+${g.pp.toFixed(g.pp<1?2:1)}%</b>`:"";
+  const meta=n.t==="tier4"&&mx<1?"Mastery 60":`${n.c} pt${n.m>1?"/rank":""}${gain}`;
+  b.innerHTML=`<span class="nm">${label(n)}</span><span class="meta">${meta}</span>`+(n.m>1?`<span class="pips">${Array.from({length:n.m},(_,i)=>`<i class="${i<r?"on":i<mr?"mine":""}"></i>`).join("")}</span>`:"");
+  b.setAttribute("aria-label",`${n.name}, ${r?"taken"+(n.m>1?` rank ${r} of ${n.m}`:""):"not taken"}, costs ${n.c}`);
+  b.addEventListener("click",()=>clickNode(n.id));
+  b.addEventListener("mouseenter",()=>showDetail(n.id));b.addEventListener("focus",()=>showDetail(n.id));
+  return b;
+}
+function renderTree(){
+  const root=$("rootRow");root.innerHTML='<span class="eyebrow">Root</span>';root.appendChild(nodeEl(byId.venom_tip));
+  const cols=$("cols");cols.innerHTML="";
+  COLS.forEach((t,ci)=>{const c=document.createElement("div");c.className="col";
+    const ptsIn=GROUPS.filter(g=>g[0]===ci).flatMap(g=>g[2]).reduce((a,id)=>a+(sel[id]||0)*byId[id].c,0);
+    c.innerHTML=`<div class="colhead"><h2>${t}</h2><span class="pts">${ptsIn} pts</span></div>`;
+    for(const [col,title,ids,fork] of GROUPS){if(col!==ci)continue;const g=document.createElement("div");g.className="grp"+(fork?" fork":"");
+      g.innerHTML=`<div class="gt">${title}</div>`;const row=document.createElement("div");row.className="row";let tr=null;
+      ids.forEach(id=>{const n=byId[id],el=nodeEl(n);if(isTier(n)||["active","tier","tier4"].includes(n.t)){if(!tr){tr=document.createElement("div");tr.className="track";row.appendChild(tr)}tr.appendChild(el)}else{tr=null;row.appendChild(el)}});g.appendChild(row);c.appendChild(g)}
+    cols.appendChild(c)});
+  const caps=$("caps");caps.innerHTML=`<div class="grp fork"><div class="gt">Capstone (needs Parasitic III + Rapid Fire III + Arrow Shower III)</div></div>`;
+  const row=document.createElement("div");row.className="row";["apex_predator","master_archer"].forEach(id=>row.appendChild(nodeEl(byId[id])));caps.firstChild.appendChild(row);
+}
+function clickNode(id){
+  const n=byId[id],r=sel[id]||0;
+  if(id==="venom_tip"&&r){note("Venom Tip is the root of the tree. Turn the imbue off in Fight settings instead.");showDetail(id);return}
+  if(r){if(r<maxR(n))sel[id]=r+1;else removeNode(sel,id)}
+  else{const p=pathFor(sel,id);if(!p){note(maxR(n)<1?"Tier IV unlocks at Mastery 60.":"Another choice in this group is taken. Remove it first.");showDetail(id);return}
+    sel=applyPath(sel,p);if(Object.keys(p.add).length>1)note(`Took the ${Object.keys(p.add).length}-node path to ${n.name} (${p.cost} pts).`)}
+  focusId=id;showDetail(id);changed();
+}
+function showDetail(id){
+  const n=byId[id];$("dName").textContent=n.name;
+  const rk=n.ranks?` Ranks: ${n.ranks.join(" · ")}.`:"";
+  $("dDesc").textContent=`${n.d}${rk} Cost ${n.c}${n.m>1?" per rank":""}.${n.p?" Requires "+byId[n.p].name+".":""}`;
+  const m=MODEL[id]||(id.startsWith("evasion")?MODEL.evasion_1:"");const e=$("dModel");e.hidden=!m;e.textContent=m?"In this planner: "+m:"";
+}
+let noteTimer;function note(msg){const el=$("optMsg");el.textContent=msg;clearTimeout(noteTimer);noteTimer=setTimeout(()=>{if(el.textContent===msg)el.textContent=""},5000)}
+
+const BARS=[["auto","Autos","var(--accent)"],["rapid","Rapid Fire shots","color-mix(in srgb,var(--accent) 60%,var(--panel))"],["multishot","Master Archer","color-mix(in srgb,var(--accent) 40%,var(--panel))"],["venom","Venom procs","var(--venom)"],["AS","Arrow Shower","var(--ability)"],["PA","Parasitic Arrow","color-mix(in srgb,var(--ability) 70%,var(--panel))"],["PS","Piercing Shot","color-mix(in srgb,var(--ability) 50%,var(--panel))"],["HM","Hunter's Mark","color-mix(in srgb,var(--ability) 35%,var(--panel))"],["dot","Damage over time","var(--gain)"]];
+let last=null;
+function renderResults(){
+  const r=evaluate(sel);last=r;const P=r.P;
+  $("modeLabel").textContent=(S.mode==="aoe"?`AoE DPS · ${S.enemies} enemies`:"Single target DPS")+(S.targetBoss?" · boss":"");
+  $("dpsBig").textContent=fmt(r.dps);
+  const d=$("dpsDelta");if(baseline&&baseline.mode===S.mode){const pct=(r.dps/baseline.dps-1)*100;d.textContent=`${pct>=0?"+":""}${pct.toFixed(1)}% vs baseline`;d.className="delta "+(pct>=.05?"up":pct<=-.05?"down":"")}else{d.textContent="";d.className="delta"}
+  const sp=spent(sel);$("kvPts").innerHTML=`<span class="${sp>S.points?"over":""}">${sp} / ${S.points}</span>`;
+  $("kvInt").textContent=P.interval.toFixed(3)+" s";
+  $("kvCrit").textContent=P.precision?`always · ${(P.critDmg*100).toFixed(1)}%`:`${(Math.min(1,P.crit)*100).toFixed(1)}% · ${(P.critDmg*100).toFixed(1)}%`;
+  $("kvHit").textContent=(P.hit*100).toFixed(1)+"%"+(P.eagleSight?" (100% when debuffed)":"");
+  $("kvVuln").textContent="+"+(r.A.vuln*100).toFixed(1)+"%";
+  $("kvShred").textContent=P.single?"all (Single Arrow)":(r.A.shred*100).toFixed(1)+"%";
+  $("kvVen").textContent=P.venom?r.A.vst.toFixed(2)+" / 5":"imbue off";
+  $("kvMark").textContent=P.hmPassive?r.A.mark.toFixed(1)+" / 10":"—";
+  $("kvMana").textContent=(r.A.starved/Math.max(1,S.fight)*100).toFixed(0)+"%";
+  const tot=Math.max(1,r.dps),shown=BARS.filter(b=>r.B[b[0]]>0.5);
+  $("stack").innerHTML=shown.map(([k,l,c])=>`<i style="width:${(r.B[k]/tot*100).toFixed(2)}%;background:${c}" title="${l}"></i>`).join("");
+  $("bars").innerHTML=shown.map(([k,l,c])=>`<span class="sw" style="background:${c}"></span><span>${l}</span><span class="v">${fmt(r.B[k])}</span><span class="p">${(r.B[k]/tot*100).toFixed(1)}%</span>`).join("");
+  const chips=$("abChips");chips.innerHTML="";
+  if(!r.learned.length)chips.innerHTML=`<span class="note">No abilities taken yet.</span>`;
+  for(const a of r.learned){const c=document.createElement("button");const on=r.use.includes(a.key),off=!!S.off[a.key];
+    c.className="chip "+(off?"off":on?"on":"idle");c.textContent=`${a.name} · ${r.A.casts[a.key]??0} casts`;
+    c.title=off?"Benched. Click to use it again.":on?"In use. Click to bench.":"Not in the best set for your slots.";
+    if(!on&&!off)c.textContent=`${a.name} · no slot`;
+    c.addEventListener("click",()=>{if(S.off[a.key])delete S.off[a.key];else S.off[a.key]=1;changed()});chips.appendChild(c)}
+  $("code").value=btoa(JSON.stringify(sel));
+  $("statSum").textContent=`ATK ${S.atk} · ${S.interval}s · crit ${S.crit}% / ${S.critDmg}% · ${S.points} pts · Mastery ${S.mastery}`;
+}
+
+// marginal values
+let margToken=0;
+async function computeMarginals(){
+  const tok=++margToken;const base=evaluate(sel,6,.05,false).dps;const out={};const list=[];
+  for(const n of N){
+    if(tok!==margToken)return;
+    const p=searchPath(sel,n.id);if(!p)continue;
+    const r=evaluate(applyPath(sel,p),6,.05,false).dps;const gain=r-base;
+    const pp=gain/base*100/p.cost;out[n.id]={pp,gain,cost:p.cost,path:p};if(gain>0)list.push({id:n.id,pp,gain,cost:p.cost,path:p});
+    await new Promise(res=>setTimeout(res,0));
+  }
+  if(tok!==margToken)return;
+  marg=out;renderTree();
+  list.sort((a,b)=>b.pp-a.pp);
+  const rem=S.points-spent(sel);
+  const host=$("picks");host.innerHTML="";
+  if(!list.length){host.innerHTML=`<p class="note">Nothing left that adds damage.</p>`;return}
+  for(const it of list.slice(0,6)){const n=byId[it.id];const b=document.createElement("button");b.className="pick";
+    const steps=Object.keys(it.path.add).length;
+    b.innerHTML=`<span class="pn">${n.name}${it.path.add[it.id]&&has(sel,it.id)?" (+1 rank)":""}</span><span class="pv">+${fmt(it.gain)} DPS</span><span class="pc">${it.cost} pt${it.cost>1?"s":""}${steps>1?` · ${steps}-node path`:""} · +${it.pp.toFixed(2)}% per point${it.cost>rem?" · over budget":""}</span>`;
+    b.addEventListener("click",()=>{sel=applyPath(sel,it.path);focusId=it.id;showDetail(it.id);changed()});host.appendChild(b)}
+}
+
+// optimizer
+let optRunning=false;
+async function greedyFill(s,budget,tick){
+  for(let guard=0;guard<80;guard++){
+    const base=evaluate(s,3,.1,false).dps;const rem=budget-spent(s);let best=null;
+    for(const n of N){const p=searchPath(s,n.id);if(!p||p.cost>rem)continue;
+      const d=evaluate(applyPath(s,p),3,.1,false).dps-base;const sc=d/p.cost;if(d>1e-6&&(!best||sc>best.sc))best={sc,p};
+      await tick()}
+    if(!best)break;s=applyPath(s,best.p);
+  }
+  return s;
+}
+async function optimize(deep){
+  if(optRunning)return;optRunning=true;$("optBtn").disabled=$("deepBtn").disabled=true;
+  const prog=$("prog"),bar=prog.firstChild;prog.hidden=false;let n=0;const est=deep?15*900:1100;
+  let lastYield=performance.now();
+  const tick=async()=>{n++;if(performance.now()-lastYield>40){bar.style.width=Math.min(98,n/est*100)+"%";await new Promise(r=>setTimeout(r,0));lastYield=performance.now()}};
+  const keys=deep?[null,"martyr","precision","single_arrow","unbound"]:[null],caps=deep?[null,"apex_predator","master_archer"]:[null];
+  const starts=[];for(const k of keys)for(const c of caps)starts.push([k,c].filter(Boolean));
+  let best=null;
+  for(const k of starts){
+    let s={venom_tip:1},ok=true;
+    for(const id of k){const p=pathFor(s,id);if(!p||spent(applyPath(s,p))>S.points){ok=false;break}s=applyPath(s,p)}
+    if(!ok)continue;
+    s=await greedyFill(s,S.points,tick);
+    const v=evaluate(s,8,.05,false).dps;if(!best||v>best.v)best={s,v};
+  }
+  bar.style.width="100%";
+  const before=evaluate(sel,8,.05,false).dps;
+  if(best&&best.v>before*1.0005){sel=best.s;note(`Found a build ${((best.v/before-1)*100).toFixed(1)}% stronger than the one you had.`)}
+  else note("Your current build is already as good as anything the search found.");
+  setTimeout(()=>{prog.hidden=true;bar.style.width="0"},600);
+  optRunning=false;$("optBtn").disabled=$("deepBtn").disabled=false;changed();
+}
+
+let recalcTimer;
+function changed(){save();renderTree();renderResults();clearTimeout(recalcTimer);recalcTimer=setTimeout(computeMarginals,250)}
+function setMode(m){S.mode=m;$("m-single").setAttribute("aria-pressed",m==="single");$("m-aoe").setAttribute("aria-pressed",m==="aoe");changed()}
+$("m-single").addEventListener("click",()=>setMode("single"));$("m-aoe").addEventListener("click",()=>setMode("aoe"));
+$("mineBtn").addEventListener("click",()=>{sel={...MY_BUILD};focusId=null;changed();note("Loaded your saved build.")});
+$("resetBtn").addEventListener("click",()=>{sel={venom_tip:1};focusId=null;changed()});
+$("pinBtn").addEventListener("click",()=>{baseline={dps:last.dps,mode:S.mode};changed();note("Baseline saved. Changes now show against it.")});
+$("optBtn").addEventListener("click",()=>optimize(false));$("deepBtn").addEventListener("click",()=>optimize(true));
+$("copyBtn").addEventListener("click",()=>{const t=$("code");navigator.clipboard?.writeText(t.value).then(()=>{$("codeMsg").textContent="Copied."}).catch(()=>{t.select();$("codeMsg").textContent="Selected. Press Ctrl/Cmd+C to copy."})});
+$("loadBtn").addEventListener("click",()=>{try{const s=JSON.parse(atob($("code").value.trim()));if(typeof s!=="object"||!s)throw 0;const clean={};for(const k in s)if(byId[k])clean[k]=Math.max(0,Math.min(byId[k].m,s[k]|0));clean.venom_tip=1;sel=clean;$("codeMsg").textContent="Build loaded.";changed()}catch(e){$("codeMsg").textContent="That code could not be read. Paste a code copied from this planner."}});
+buildFields();$("m-single").setAttribute("aria-pressed",S.mode==="single");$("m-aoe").setAttribute("aria-pressed",S.mode==="aoe");
+changed();
+</script>
+
+</body>
+</html>

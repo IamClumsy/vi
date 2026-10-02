@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The next 15 General points, in order (56 to 70).">
+<title>General Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: stat strip on top, three-path skill tree on the left, sticky results rail on the right; stacks on phones. */
+:root{
+  --bg:#121315; --bg2:#17191c; --panel:#1b1e22; --panel2:#262a30; --ink:#ebe6dc; --muted:#9a968c; --line:#30343a;
+  --accent:#d6a24a; --accent-soft:#3a2f1c; --accent-ink:#1b1408; --accent-line:#8a6a32;
+  --gain:#7cc7a4; --venom:#b897ee; --ability:#6fa8dc; --danger:#ef8b80; --good:#7fd49b;
+  --f-display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --venom:#6f45ad; --ability:#2f6aa3; --danger:#b3261e; --good:#1c7a48; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --venom:#6f45ad; --ability:#2f6aa3; --danger:#b3261e; --good:#1c7a48; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);background-image:radial-gradient(1200px 500px at 70% -10%,var(--accent-soft),transparent 70%);background-repeat:no-repeat;color:var(--ink);font:14px/1.5 var(--f-body)}
+.wrap{max-width:1280px;margin:0 auto;padding-block:20px 48px;padding-inline:16px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:2.1rem;letter-spacing:.02em;line-height:1.05}
+h1 .tag{color:var(--accent)}
+.sub{color:var(--muted);margin:2px 0 0}
+.eyebrow{font:600 .7rem/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;margin-bottom:16px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:7px 12px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* stats */
+details.stats{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:16px}
+details.stats>summary{cursor:pointer;padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;list-style:none}
+details.stats>summary::-webkit-details-marker{display:none}
+details.stats>summary::before{content:"▸";color:var(--muted);transition:transform .15s}
+details.stats[open]>summary::before{transform:rotate(90deg)}
+.sumline{color:var(--muted);font-size:.85rem}
+.statbody{padding:0 16px 16px;display:grid;gap:16px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px}
+.field{display:flex;flex-direction:column;gap:3px;min-width:0}
+.field label{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.field input,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;color:var(--ink);font:500 .95rem var(--f-mono)}
+.field.check{flex-direction:row;align-items:center;gap:8px;padding-top:18px}
+.field.check label{color:var(--ink);font-size:.85rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 12px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--accent)}
+.legend .l-sel::before{background:var(--accent)}
+.legend .l-av::before{border-style:dashed}
+.legend .l-mine::before{background:color-mix(in srgb,var(--accent) 30%,var(--bg2))}
+.legend .l-lock::before{border-color:var(--line)}
+.legend .l-gain::before{border:0;background:var(--gain)}
+.root{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:12px}
+.root::after{content:"";width:1px;height:12px;background:var(--accent-line)}
+.root .eyebrow{font-size:.62rem}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.colhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.colhead .pts{font:500 .78rem var(--f-mono);color:var(--accent)}
+.col h2{font-size:1.02rem;letter-spacing:.02em}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp .gt{font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+.grp.fork .gt::after{content:" · pick one";color:var(--accent)}
+.node{position:relative;border:1px dashed var(--accent-line);background:var(--bg2);border-radius:7px;padding:6px 9px;min-width:46px;text-align:left;display:flex;flex-direction:column;gap:2px;line-height:1.2;transition:border-color .12s,transform .12s}
+.node:hover{border-color:var(--accent);transform:translateY(-1px)}
+.node .nm{font-weight:600;font-size:.82rem}
+.node .meta{font:400 .68rem var(--f-mono);color:var(--muted)}
+.node.sel{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 82%,#000));border:1px solid var(--accent);color:var(--accent-ink);box-shadow:0 1px 0 rgba(255,255,255,.15) inset}
+.node.sel .meta{color:var(--accent-ink);opacity:.8}
+.node.mine{border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 30%,var(--bg2));color:var(--ink)}
+.node.mine .meta{color:var(--ink);opacity:.75}
+.node.sel.partial{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 82%,#000))}
+.node.lock{border:1px solid var(--line);background:transparent;color:var(--muted)}
+.node.lock .nm{font-weight:500}
+.node.gated{opacity:.45}
+.node .meta b{color:var(--gain);font-weight:600}
+.node.sel .meta b{color:inherit}
+.node.focus{outline:2px solid var(--accent);outline-offset:2px}
+.track{display:inline-flex;align-items:stretch}
+.track .node{border-radius:0;margin-left:-1px}
+.track .node:first-child{border-radius:7px 0 0 7px;margin-left:0}
+.track .node:last-child{border-radius:0 7px 7px 0}
+.track .node .nm{font-family:var(--f-display)}
+.pips{display:flex;gap:2px;margin-top:2px}
+.pips i{width:6px;height:6px;border-radius:50%;border:1px solid currentColor;display:block}
+.pips i.on{background:currentColor}
+.pips i.mine{background:color-mix(in srgb,var(--accent) 45%,transparent);border-color:var(--accent)}
+.legendrows{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 10px;font-size:.8rem;margin-top:10px;align-items:center}
+.legendrows .sw{width:9px;height:9px;border-radius:2px}
+.legendrows .v{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.legendrows .p{font-family:var(--f-mono);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
+.caps{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.node{cursor:default}.node:hover{transform:none;border-color:var(--accent-line)}
+.node.plan{border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 38%,var(--bg2));color:var(--ink);padding-right:30px}
+.node.plan .meta{color:var(--ink);opacity:.8}
+.badge{position:absolute;top:-8px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--accent);color:var(--accent-ink);font:700 .72rem/22px var(--f-mono);text-align:center;padding:0 6px;box-shadow:0 0 0 2px var(--panel);white-space:nowrap}
+.pips i.plan{background:color-mix(in srgb,var(--accent) 45%,transparent);border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.rail{display:flex;flex-direction:column;gap:12px;position:sticky;top:12px}
+.hero{background:linear-gradient(180deg,var(--accent-soft),var(--panel))}
+.big{font:700 2.6rem/1 var(--f-display);color:var(--accent);margin:8px 0 2px}
+.big small{font:500 .9rem var(--f-mono);color:var(--muted)}
+.up{color:var(--gain);font:600 .85rem var(--f-mono)}
+ol.steps{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column}
+ol.steps li{display:grid;grid-template-columns:28px 1fr auto;gap:2px 10px;padding:9px 0;border-top:1px solid var(--line)}
+ol.steps li:first-child{border-top:0}
+.n{grid-row:span 2;width:24px;height:24px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font:700 .75rem/24px var(--f-mono);text-align:center}
+.nm2{font-weight:600}.pt{font:.72rem var(--f-mono);color:var(--muted)}
+.g{font:600 .8rem var(--f-mono);color:var(--gain);text-align:right}
+.d{grid-column:2/4;font-size:.78rem;color:var(--muted)}
+.dps{font:.72rem var(--f-mono);color:var(--muted);text-align:right}
+.warn{font-size:.78rem;color:var(--muted);margin:10px 0 0}
+.legend .l-plan::before{background:color-mix(in srgb,var(--accent) 30%,var(--bg2))}
+.legend .l-sel::before{background:var(--accent)}
+.node.multi{outline:2.5px solid var(--ink);outline-offset:-1px}
+.legend .l-multi::before{background:transparent;border:2.5px solid var(--ink)}
+</style>
+<style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
+</head>
+<body>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner">General Planner</a><a href="/general-roadmap" aria-current="page">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+
+<div class="wrap">
+ <header class="top"><div><div class="eyebrow">Void Idle · Path of Force</div><h1>General <span class="tag">Roadmap</span></h1><p class="sub">Your 55-point General tree, and the next 15 points in the order to spend them (points 56 to 70).</p></div></header>
+ <div class="main">
+  <div>
+   <div class="treehead"><div class="legend"><span class="l-mine">Taken now</span><span class="l-plan">Planned (number = order)</span><span class="l-multi">More than 1 point</span></div></div>
+   <div class="cols" id="cols" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))"></div>
+  </div>
+  <div class="rail">
+   <div class="card hero"><div class="eyebrow">Single target DPS · planner</div>
+    <div class="big"><span id="dpsEnd"></span> <small>DPS</small></div>
+    <div class="up" id="dpsUp"></div>
+    <p class="warn">Planner estimate from your Combat Stats calibration, not a log result. Your General tree points match your Bow points but come from their own pool, so spending one never uses up the other.</p></div>
+   <div class="card"><div class="eyebrow">Spend order · points 56 to 70</div><ol class="steps" id="steps"></ol>
+    <p class="warn">After step 3 every pick is worth about the same (+0.17% per point), so the order of steps 4 to 13 is flexible. Aim adds nothing by itself (hit is capped), it is only a stepping stone to column 3 Malice. Path nodes give the same value as the regular nodes (checked against their tooltips).</p></div>
+  </div>
+ </div>
+</div>
+<style>
+.chainv{display:flex;flex-direction:column;gap:6px}
+.hang{margin-left:14px;padding-left:10px;border-left:2px solid var(--accent-line);display:flex;flex-direction:column;gap:6px;position:relative}
+.hangtag{font:600 .6rem var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.leafwrap{margin-left:14px;display:flex;flex-direction:column;gap:6px}
+</style>
+<script>
+
+// ---------- data ----------
+const TYPES={
+  power:{name:"Power",max:2,fx:{dmg:.25},txt:"+0.25% damage"},
+  aim:{name:"Aim",max:2,fx:{},txt:"+0.25% hit (capped at 95%)"},
+  edge:{name:"Edge",max:2,fx:{crit:.25},txt:"+0.25% crit chance"},
+  malice:{name:"Malice",max:2,fx:{cd:1.5},txt:"+1.5% crit damage"},
+  haste:{name:"Haste",max:2,fx:{spd:.25},txt:"+0.25% attack speed"},
+  powerfocus:{name:"Power Focus",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
+  hastefocus:{name:"Haste Focus",max:1,fx:{spd:.5},txt:"+0.5% attack speed"},
+  pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
+  inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
+};
+const ANCHOR={dps:11173,crit:57.6,cd:312.46,interval:1.123};
+const K={dmgBase:150,cd:.00291,crit:.0067,spd:.0055};
+const N=[],byId={},kids={};
+function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
+add("inner","inner","",4);
+add("pof","pof","inner",1);
+const LANES=[];
+function lane(key,title,parent,chain,leaves,row){
+  let prev=parent;const ids=[];
+  chain.forEach((c,i)=>{prev=add(key+"_"+i,c[0],prev,c[1],c[2]);ids.push(prev)});
+  const lv=(leaves||[]).map((c,j)=>add(key+"_L"+j,c[0],prev,c[1],c[2]));
+  LANES.push({key,title,parent,ids,lv,row});
+}
+const P="power",A="aim",E="edge",M="malice",H="haste";
+lane("c1","Column 1","pof",[[P,1],[A,1],[E,1],[M,2],[H,1],[P,1],[A,1],[E,1,"Edge Path"],[E,1],[E,1]],[[H,0],[A,0]],"main");
+lane("c2","Column 2","pof",[[E,1],[M,2],[H,1],[P,1],[H,0],[P,0]],[],"main");
+lane("c3","Column 3","pof",[["hastefocus",1],[A,0],[M,0],[P,0]],[],"main");
+lane("c4","Column 4","pof",[["powerfocus",1],[E,1],[H,0],[A,0]],[],"main");
+lane("c5","Column 5","pof",[[A,1],[E,1],[M,2],[H,1],[P,1],[A,1]],[],"main");
+lane("c2b","Column 2 branch","c2_3",[[A,1],[E,1],[M,2],[M,2,"Malice Path"],[M,2],[M,2]],[[E,0],[P,0]],"branch");
+lane("c1m","Column 1 side branch","c1_3",[[E,1],[M,2]],[],"branch");
+lane("c1a","Aim Path branch","c1_6",[[A,0,"Aim Path"],[A,0],[A,0]],[[M,0],[P,0]],"branch");
+lane("c2c","Edge Path branch","c2b_2",[[E,0,"Edge Path"],[E,0],[E,0]],[[H,0],[A,0]],"branch");
+lane("c5b","Column 5 branch","c5_3",[[M,2],[H,0]],[],"branch");
+lane("c5c","Right branch","c5_5",[[E,1]],[],"branch");
+lane("c5d","Haste Path","c5c_0",[[H,1,"Haste Path"],[H,1],[H,1]],[[A,0],[M,2]],"branch");
+lane("c5e","Power Path","c5c_0",[[P,1,"Power Path"],[P,1],[P,1]],[[E,0],[H,0]],"branch");
+
+const isPath=n=>false;const mult=n=>isPath(n)?2:1;
+const MY={};N.forEach(n=>MY[n.id]=n.my);
+const maxOf=id=>TYPES[byId[id].type].max;
+
+
+function fx(r){const o={dmg:0,cd:0,crit:0,spd:0};for(const n of N){const rk=r[n.id]||0;if(!rk)continue;const f=TYPES[n.type].fx;for(const k in f)o[k]+=f[k]*rk*mult(n)}return o}
+const FMY=fx(MY);
+const MYR={...MY};
+const PLAN=[
+ {pts:"56 to 57",ids:["c3_1","c3_2"],why:"Aim is only the stepping stone. Malice rank 1 gives +1.5% crit damage."},
+ {pts:"58",ids:["c3_2"],why:"Malice rank 2: another +1.5% crit damage. The best single point left."},
+ {pts:"59",ids:["c1_2"],why:"Edge rank 2 in column 1: +0.25% crit chance."},
+ {pts:"60 to 61",ids:["c2c_0","c2c_1"],why:"Edge Path branch: two Edge ranks (+0.5% crit chance)."},
+ {pts:"62",ids:["c1_0"],why:"Power rank 2: +0.25% damage."},
+ {pts:"63",ids:["c1_7"],why:"Edge Path rank 2: +0.25% crit chance."},
+ {pts:"64",ids:["c1_5"],why:"Power rank 2: +0.25% damage."},
+ {pts:"65",ids:["c1_8"],why:"Edge rank 2: +0.25% crit chance."},
+ {pts:"66",ids:["c2_3"],why:"Power rank 2: +0.25% damage."},
+ {pts:"67",ids:["c1_9"],why:"Edge rank 2: +0.25% crit chance."},
+ {pts:"68",ids:["c3_3"],why:"Power rank 1 behind column 3 Malice."},
+ {pts:"69",ids:["c2_0"],why:"Edge rank 2 in column 2."},
+ {pts:"70",ids:["c3_3"],why:"Power rank 2."}];
+const $=id=>document.getElementById(id);
+const planned={};PLAN.forEach((s,i)=>s.ids.forEach(id=>{(planned[id]=planned[id]||[]).push(i+1)}));
+// cumulative DPS
+const rr={...MYR};const dpsAt=[];
+const spent2=r=>N.reduce((s,n)=>s+(r[n.id]||0),0);
+function dps2(r){const f=fx(r),d={dmg:f.dmg-FMY.dmg,cd:f.cd-FMY.cd,crit:f.crit-FMY.crit,spd:f.spd-FMY.spd};
+ return ANCHOR.dps*(1+d.dmg/K.dmgBase)*(1+K.cd*d.cd)*(1+K.crit*d.crit)*(1+K.spd*d.spd)}
+let prev=ANCHOR.dps;
+$("steps").innerHTML=PLAN.map((s,i)=>{s.ids.forEach(id=>rr[id]++);const d=dps2(rr);const g=(d/prev-1)*100;prev=d;
+ const names=s.ids.map(id=>byId[id].label).filter((v,j,a)=>a.indexOf(v)===j).join(" + ");
+ return `<li><span class="n">${i+1}</span><span class="nm2">${names}</span><span class="g">${g>0?"+":""}${g.toFixed(2)}%</span><span class="pt">points ${s.pts}</span><span class="dps">${Math.round(d).toLocaleString()} DPS</span><span class="d">${s.why}</span></li>`}).join("");
+if(spent2(rr)!==70)console.warn("end points",spent2(rr));
+const endD=dps2(rr);$("dpsEnd").textContent=Math.round(endD).toLocaleString();
+$("dpsUp").textContent="+"+((endD/ANCHOR.dps-1)*100).toFixed(1)+"% over your 55-point build ("+ANCHOR.dps.toLocaleString()+")";
+function nodeEl(id){const n=byId[id],mx=maxOf(id),mine=MYR[id],pl=(planned[id]||[]).length;
+ const b=document.createElement("div");b.className="node "+(pl?"plan":"mine");
+ const eff=n.type==="aim"?"hit capped":TYPES[n.type].txt.replace(" (capped at 95%)","");
+ b.innerHTML=`<span class="nm">${n.label}</span><span class="meta">${mine+pl}/${mx} · ${eff}</span><span class="pips">${Array.from({length:mx},(_,i)=>`<i class="${i<mine?"mine":i<mine+pl?"plan":""}"></i>`).join("")}</span>`;
+ if(pl){const bd=document.createElement("span");bd.className="badge";const st=[...new Set(planned[id])];bd.textContent=st.length>1?st.join("·"):st[0];b.appendChild(bd)}
+ if(mine+pl>1)b.classList.add('multi');
+ return b}
+const laneOf=id=>id.split("_")[0];
+const isLeaf=id=>/_L\d+$/.test(id);
+const shown=id=>(MYR[id]>0)||planned[id]||(kids[id]||[]).some(shown);
+function addPts(id){let t=(planned[id]||[]).length;(kids[id]||[]).forEach(k=>t+=addPts(k));return t}
+function curPts(id){let t=MYR[id]||0;(kids[id]||[]).forEach(k=>t+=curPts(k));return t}
+function renderBranch(id,host){
+  if(!shown(id))return;
+  host.appendChild(nodeEl(id));
+  const ks=(kids[id]||[]).filter(shown);
+  const lane=laneOf(id);
+  const branches=ks.filter(k=>laneOf(k)!==lane),cont=ks.filter(k=>laneOf(k)===lane&&!isLeaf(k)),leaves=ks.filter(k=>laneOf(k)===lane&&isLeaf(k));
+  branches.forEach(k=>{const w=document.createElement("div");w.className="hang";const tag=document.createElement("div");tag.className="hangtag";tag.textContent="branch";w.appendChild(tag);renderBranch(k,w);host.appendChild(w)});
+  cont.forEach(k=>renderBranch(k,host));
+  leaves.forEach(k=>{const w=document.createElement("div");w.className="leafwrap";renderBranch(k,w);host.appendChild(w)});
+}
+const topEl=document.createElement("div");topEl.className="root";topEl.style.cssText="flex-direction:row;justify-content:center;gap:10px;margin-bottom:14px";
+const tw=document.createElement("div");tw.style.width="170px";tw.appendChild(nodeEl("inner"));const tw2=document.createElement("div");tw2.style.width="170px";tw2.appendChild(nodeEl("pof"));topEl.appendChild(tw);topEl.appendChild(tw2);
+$("cols").parentNode.insertBefore(topEl,$("cols"));
+$("cols").style.gridTemplateColumns="repeat(auto-fit,minmax(215px,1fr))";
+(kids["pof"]||[]).forEach((cid,i)=>{
+ const c=document.createElement("div");c.className="col";
+ const add=addPts(cid);
+ c.innerHTML=`<div class="colhead"><h2>Column ${i+1}</h2><span class="pts">${curPts(cid)} pts${add?` <span style="color:var(--gain)">+${add}</span>`:""}</span></div>`;
+ const g=document.createElement("div");g.className="chainv";renderBranch(cid,g);c.appendChild(g);$("cols").appendChild(c)});
+
+</script>
+
+</body>
+</html>
