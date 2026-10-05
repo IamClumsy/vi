@@ -152,7 +152,7 @@ ol.steps li:first-child{border-top:0}
   <div class="rail">
    <div class="card hero"><div class="eyebrow">Single target DPS · planner</div>
     <div class="big"><span id="dpsEnd"></span> <small>DPS</small></div>
-    <div class="up" id="dpsUp"></div>
+    <div class="up" id="dpsUp"></div><p class="warn"><b>Party vs solo:</b> DPS figures assume your usual party (four party auras: Attack, Haste, Defense and Wisdom, plus 16% party vulnerable). Solo totals are about 20% lower, but each node's percentage gain stays about the same.</p>
     <p class="warn">Planner estimate from your Combat Stats calibration, not a log result. Your General tree points match your Bow points but come from their own pool, so spending one never uses up the other.</p></div>
    <div class="card"><div class="eyebrow">Spend order · points 56 to 70</div><ol class="steps" id="steps"></ol>
     <p class="warn">After step 3 every pick is worth about the same (+0.17% per point), so the order of steps 4 to 13 is flexible. Aim adds nothing by itself (hit is capped), it is only a stepping stone to column 3 Malice. Path nodes give the same value as the regular nodes (checked against their tooltips).</p></div>
@@ -179,8 +179,8 @@ const TYPES={
   pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
   inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
 };
-const ANCHOR={dps:11173,crit:57.6,cd:312.46,interval:1.123};
-const K={dmgBase:150,cd:.00291,crit:.0067,spd:.0055};
+const ANCHOR={dps:13466,crit:68.3,cd:374.03,interval:1.11};
+const K={dmgBase:152,cd:.00255,crit:.00622,spd:.00342};
 const N=[],byId={},kids={};
 function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
 add("inner","inner","",4);

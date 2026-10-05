@@ -185,7 +185,7 @@ details.how ul{padding-left:18px;margin:8px 0 0;max-width:80ch} details.how li{m
     <div class="statbody">
       <div>
         <div class="eyebrow" style="margin-bottom:8px">Character sheet, no aura</div>
-        <p class="note" style="margin:0 0 8px">The in-game sheet already includes your Bow tree. For fields marked "minus tree", subtract what the tree adds (Apex: +10% crit, +17% damage; Killing Shot and Marked Prey ranks) so it isn't counted twice.</p>
+        <p class="note" style="margin:0 0 8px">Loaded from your Lv 56 sheet (scroll off, T4 Precise and Cleaving). The in-game sheet already includes your Bow tree. For fields marked "minus tree", subtract what the tree adds (Apex: +10% crit, +17% damage; Killing Shot and Marked Prey ranks) so it isn't counted twice.</p>
         <div class="fields" id="f-char"></div>
       </div>
       <div>
@@ -374,9 +374,9 @@ const byId=Object.fromEntries(N.map(n=>[n.id,n]));
 
 // ---------- Settings ----------
 const CHAR=[
- ["atk","Attack","",1164],["interval","Attack interval","s",1.123],["hit","Hit chance (minus Bow tree)","%",92.25],["crit","Crit chance (minus tree)","%",47.6],
- ["critDmg","Crit damage (minus tree)","%",306.41],["execute","Execute damage","%",13.5],["ability","Ability damage","%",28.5],["damage","Damage (minus tree)","%",32.85],
- ["boss","Boss damage","%",11],["cdr","Cooldown reduction","%",26.7],["regen","Mana regen","/10s",88.4],["maxMana","Max mana","",2269]
+ ["atk","Attack","",1085],["interval","Attack interval","s",1.1397],["hit","Hit chance (minus Bow tree)","%",92.70],["crit","Crit chance (minus tree)","%",58.3],
+ ["critDmg","Crit damage (minus tree)","%",360.63],["execute","Execute damage","%",21.5],["ability","Ability damage","%",38.9],["damage","Damage (minus tree)","%",33.35],
+ ["boss","Boss damage","%",7],["cdr","Cooldown reduction","%",23.86],["regen","Mana regen","/10s",81.9],["maxMana","Max mana","",2092]
 ];
 const FIGHT=[
  ["points","Mastery points","pts",55],["mastery","Mastery level","",55],["slots","Ability slots","",4],["fight","Fight length","s",300],
@@ -392,8 +392,9 @@ for(const f of [...CHAR,...FIGHT])S[f[0]]=f[3];
 for(const c of CHECKS)S[c[0]]=c[2];
 let sel={...DEFAULT_SEL};
 let baseline=null;
-try{const saved=JSON.parse(localStorage.getItem("bowplanner.v10")||"null");if(saved){Object.assign(S,saved.S||{});if(S.mastery===70)S.mastery=54;if(saved.sel)sel=saved.sel;baseline=saved.baseline??null}}catch(e){}
-function save(){try{localStorage.setItem("bowplanner.v10",JSON.stringify({S,sel,baseline}))}catch(e){}}
+const NEWDEF={};for(const k of ["atk","interval","hit","crit","damage","regen","maxMana"])NEWDEF[k]=S[k];
+try{const saved=JSON.parse(localStorage.getItem("bowplanner.v16")||"null");if(saved){Object.assign(S,saved.S||{});if((saved.cv||0)<17)Object.assign(S,NEWDEF);if(S.mastery===70)S.mastery=54;if(saved.sel)sel=saved.sel;baseline=saved.baseline??null}}catch(e){}
+function save(){try{localStorage.setItem("bowplanner.v16",JSON.stringify({S,sel,baseline,cv:17}))}catch(e){}}
 
 // ---------- Tree rules ----------
 const has=(s,id)=>(s[id]||0)>0;

@@ -156,9 +156,9 @@ ol.steps li:first-child{border-top:0}
   </div>
   <div class="rail">
    <div class="card hero"><div class="eyebrow">Single target DPS · planner</div>
-    <div class="big"><span id="dpsEnd">13,127</span> <small>DPS</small></div>
-    <div class="up">+17.5% over your 55-point build (11,173)</div>
-    <p class="warn">Party settings: one Fan vulnerable on the target (only the strongest applies). Planner estimates with your real mana regen (88.4/10s) and the 95% hit cap, not log results.</p></div>
+    <div class="big"><span id="dpsEnd">15,717</span> <small>DPS</small></div>
+    <div class="up">+16.7% over your 55-point build (13,466)</div><p class="warn"><b>Solo:</b> 10,829 now → 12,236 by point 71 (+13.0%), with your own Attack aura on and no party auras or party vulnerable. Mana limits Rapid Fire IV solo (+3.2% instead of +5.8%).</p>
+    <p class="warn">Party settings: four party auras (Attack, Haste, Defense, Wisdom) and 16% party vulnerable on the target (only the strongest applies). Planner estimates with your real mana regen (80.8/10s) and the 95% hit cap, not log results.</p></div>
    <div class="card"><div class="eyebrow">Spend order · points 56 to 71</div><ol class="steps" id="steps"></ol>
     <p class="warn"><b>Rapid Fire IV</b> is Tier IV and needs Mastery 60, so save points from 60 until you have the 5 it costs. Your hit is 94.25%; Eagle Sight removes that gap.</p></div>
   </div>
@@ -174,12 +174,12 @@ const NODES={
 const TAKEN={venom_tip:1,arrow_shower_1:1,arrow_shower_2:1,arrow_shower_3:1,single_arrow:1,keen_eye:1,steady_aim:1,marked_prey_1:1,marked_prey_2:1,marked_prey_3:1,marked_prey_4:1,hunters_mark:1,parasitic_1:1,parasitic_2:1,parasitic_3:1,rapid_draw:3,rapid_fire_1:1,rapid_fire_2:1,rapid_fire_3:1,rf_aimed:1,apex_predator:1};
 const MAXR={keen_eye:4,rapid_draw:4};
 const STEPS=[
- {n:"Pierce",ids:["pa_pierce"],pts:"56 to 57",c:2,dps:11440,why:"Parasitic Arrow ignores DEF and becomes true damage."},
- {n:"Killing Shot rank 4",ids:["rapid_draw"],pts:"58",c:1,dps:11546,why:"Crit damage +16.8% (from +13.4%)."},
- {n:"Wind Reader",ids:["wind_reader"],pts:"59",c:1,dps:11639,why:"+1.3% crit chance."},
- {n:"Rapid Fire IV",ids:["rapid_fire_4"],pts:"60 to 64",c:5,dps:12355,why:"5 shots at 89% ATK each (from 76%). Tier IV, needs Mastery 60."},
- {n:"Eagle Sight (via Marksman's Strength I to IV)",ids:["marksmans_str_1","marksmans_str_2","marksmans_str_3","marksmans_str_4","eagle_sight"],pts:"65 to 71",c:7,dps:13127,why:"Autos never miss a debuffed enemy. Fixes the 94.25% hit and adds +5 STR on the way. 4 Marksman's Strength points, then 3 for Eagle Sight."}];
-const BASE=11173;
+ {n:"Pierce",ids:["pa_pierce"],pts:"56 to 57",c:2,dps:13818,why:"Parasitic Arrow ignores DEF and becomes true damage."},
+ {n:"Killing Shot rank 4",ids:["rapid_draw"],pts:"58",c:1,dps:13934,why:"Crit damage +16.8% (from +13.4%)."},
+ {n:"Wind Reader",ids:["wind_reader"],pts:"59",c:1,dps:14048,why:"+1.3% crit chance."},
+ {n:"Rapid Fire IV",ids:["rapid_fire_4"],pts:"60 to 64",c:5,dps:14855,why:"5 shots at 89% ATK each (from 76%). Tier IV, needs Mastery 60."},
+ {n:"Eagle Sight (via Marksman's Strength I to IV)",ids:["marksmans_str_1","marksmans_str_2","marksmans_str_3","marksmans_str_4","eagle_sight"],pts:"65 to 71",c:7,dps:15717,why:"Autos never miss a debuffed enemy. Fixes the 94.7% hit and adds +5 STR on the way. 4 Marksman's Strength points, then 3 for Eagle Sight."}];
+const BASE=13466;
 const $=id=>document.getElementById(id);
 const stepsFor=id=>STEPS.flatMap((s,i)=>s.ids.filter(x=>x===id).map(()=>i+1));
 function node(id){const [nm,c]=NODES[id],r=TAKEN[id]||0,st=stepsFor(id),mx=MAXR[id]||1;

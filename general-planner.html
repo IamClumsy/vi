@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Path of Force nodes priced in DPS per point.">
+<meta name="description" content="Path of Force nodes and the Quest Tree, priced in DPS per point.">
 <title>Void Idle General Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -167,6 +167,65 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;text-align:right;font:500 .88rem 
     <p class="note">Values are calibrated to Bow Planner runs at Mastery 55 (Path nodes checked in-game: Aim, Edge, Haste, Power and Malice Path all give the normal per-rank value). Power and Aim have 2 ranks (tooltips checked). Mana and defense paths are left out because none beat these nodes.</p>
   </aside>
 </div>
+<style>
+.qt{margin-top:28px}
+.qt h2.big2{font-size:1.4rem;margin:0}
+.qtgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;margin-top:12px}
+@media (max-width:980px){.qtgrid{grid-template-columns:minmax(0,1fr)}}
+.qtrows{display:flex;flex-direction:column;gap:8px;min-width:820px}
+.qtrow{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+.qtn{display:flex;flex-direction:column;gap:2px;text-align:left;border:1px dashed var(--accent-line);background:var(--bg2);border-radius:7px;padding:5px 6px;min-height:74px;min-width:0;overflow-wrap:anywhere}
+.qtn .nm{font:600 .74rem/1.15 var(--f-display)}
+.qtn .mt{font:400 .62rem/1.25 var(--f-body);color:var(--muted)}
+.qtn .rk{font:500 .62rem var(--f-mono)}
+.qtn.on{background:var(--accent);border:1px solid var(--accent);color:var(--accent-ink)}
+.qtn.on .mt{color:var(--accent-ink);opacity:.8}
+.qtn.mineonly{background:color-mix(in srgb,var(--accent) 30%,var(--bg2));border-style:solid}
+.qtn.locked{border-style:solid;border-color:var(--line);opacity:.6}
+.qtn.multi{outline:2.5px solid var(--ink);outline-offset:-1px}
+.qtn .tag{font:600 .58rem var(--f-display);letter-spacing:.08em;text-transform:uppercase}
+.qtn .tag.dps{color:var(--gain)} 
+.qtn .tag.util{color:#8fb7e8} .qtn .tag.none{color:var(--muted)}
+.qtn.on .tag.dps,.qtn.on .tag.util,.qtn.on .tag.none{color:var(--accent-ink);opacity:.85}
+.qtspacer{min-height:74px}
+.qtnote{color:var(--muted);font-size:.8rem;margin:8px 0 0}
+</style>
+<section class="qt" id="qt">
+  <div class="treehead">
+    <div><div class="eyebrow">Quest Tree · Combat tab</div><h2 class="big2">Quest Tree <span style="color:var(--accent)">Planner</span></h2></div>
+    <div class="actions">
+      <div class="seg" role="group" aria-label="Quest Tree tap action">
+        <button id="qtAdd" aria-pressed="true" type="button">Add rank</button>
+        <button id="qtRm" aria-pressed="false" type="button">Remove rank</button>
+      </div>
+      <button class="btn" id="qtMine" type="button">Load my tree</button>
+      <button class="btn" id="qtClear" type="button">Full reset</button>
+    </div>
+  </div>
+  <div class="qtgrid">
+    <div class="panel">
+      <div class="scroller"><div class="qtrows" id="qtTree"></div></div>
+      <p class="qtnote">Quest Points (QP) come from daily claims. Nodes need 1 rank in every node they list under "needs". "DPS" nodes add damage, "Utility" nodes add loot, XP or slots, and "No DPS" nodes add nothing to damage in a party. DPS values use your General Planner build as the starting point. Tapping a locked node takes the nodes it needs first.</p>
+    </div>
+    <aside class="rail">
+      <div class="panel">
+        <div class="eyebrow">Estimated DPS (single target, party)</div>
+        <div class="big" id="qtDps">0 <small>DPS</small></div>
+        <div class="delta" id="qtDelta"></div>
+        <dl class="kv" id="qtKv"></dl>
+      </div>
+      <div class="panel">
+        <h2>Best next QP</h2>
+        <div class="list" id="qtBest"></div>
+      </div>
+      <div class="panel">
+        <h2>Respec check</h2>
+        <div id="qtRespec" class="note" style="margin-top:6px"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
 </div>
 <div id="toast" role="status" hidden></div>
 
@@ -183,8 +242,8 @@ const TYPES={
   pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
   inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
 };
-const ANCHOR={dps:11173,crit:57.6,cd:312.46,interval:1.123};
-const K={dmgBase:150,cd:.00291,crit:.0067,spd:.0055};
+const ANCHOR={dps:13466,crit:68.3,cd:374.03,interval:1.11};
+const K={dmgBase:152,cd:.00255,crit:.00622,spd:.00342};
 const N=[],byId={},kids={};
 function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
 add("inner","inner","",4);
@@ -326,6 +385,106 @@ $("#mineBtn").onclick=()=>{R={...MY};POINTS=Math.max(POINTS,spent(MY));render()}
 if(spent(MY)!==55)console.warn("my build points",spent(MY));
 render();
 </script>
+<script>
+(()=>{
+const W={atk:1.0,abil:.33,crit:.6,cd:.25,spd:.34,boss:.9};
+// id, name, max (0 = no cap), cost per level, needs, row, col, kind, effect text, fx(rank)->stats
+const wm=L=>L?0.5052*Math.pow(L,0.6962):0;
+const QN=[
+ ["cm","Combat Mastery",1,1,[],0,4,"util","Unlocks the Combat branch",r=>({})],
+ ["gi","Giant Insight",8,2,["cm"],1,0,"util","+5% Giant Hunter XP from giants per level",r=>({})],
+ ["wm","Weapon Mastery",0,3,["cm"],1,1,"dps","+0.5% weapon speed per level, diminishing",r=>({spd:wm(r)})],
+ ["ss","Sharp Strikes",5,2,["cm"],1,2,"dps","+0.4% Attack per level",r=>({atk:.4*r})],
+ ["is","Iron Skin",5,2,["cm"],1,4,"none","+0.4% DEF per level",r=>({def:.4*r})],
+ ["na","Natural Armor",0,3,["cm"],1,6,"none","+0.5% DEF per level, diminishing",r=>({def:wm(r)})],
+ ["qm","Quick Mind",5,2,["cm"],1,7,"none","-0.4% ability cooldown per level",r=>({cdr:.4*r})],
+ ["bi","Boss Insight",8,2,["gi"],2,0,"util","+5% Giant Hunter XP from bosses per level",r=>({})],
+ ["ke","Keen Edge",3,3,["ss"],2,2,"dps","+0.1% crit chance per level",r=>({crit:.1*r})],
+ ["ps","Power Surge",3,4,["ss"],2,3,"dps","+0.5% Attack per level",r=>({atk:.5*r})],
+ ["ds","Damage Shield",3,4,["is"],2,4,"none","+0.3% damage reduction per level",r=>({dr:.3*r})],
+ ["fo","Fortitude",3,3,["is"],2,5,"none","+0.5% max HP per level",r=>({hp:.5*r})],
+ ["mw","Mana Well",3,3,["qm"],2,7,"none","+1% max mana per level",r=>({mana:r})],
+ ["fs","Focused Strike",3,4,["qm"],2,8,"dps","+1% ability damage per level",r=>({abil:r})],
+ ["sb","Savage Blow",1,5,["ke"],3,2,"dps","+2% crit damage",r=>({cd:2*r})],
+ ["df","Devastating Force",1,8,["ps"],3,3,"dps","+3% damage vs bosses",r=>({boss:3*r})],
+ ["ub","Unbreakable",1,8,["ds"],3,4,"none","-5% recovery time",r=>({})],
+ ["ls","Last Stand",1,5,["fo"],3,5,"none","+3% DEF below 30% HP",r=>({})],
+ ["of","Overflow",1,5,["mw"],3,7,"none","-3% mana cost",r=>({})],
+ ["am","Arcane Mastery",1,8,["fs"],3,8,"dps","+5% ability damage",r=>({abil:5*r})],
+ ["rm","Reforge Master",1,18,["ls","of"],3,6,"util","Reforging costs 10% less gold",r=>({})],
+ ["rd","Rift Delver",1,20,["sb","bi"],4,2,"util","+1 Void Rift run per day",r=>({})],
+ ["wl","Warlord",1,15,["df","ub","am"],4,4,"dps","+1% all combat stats (Attack, DEF, HP), +0.2% berserk fill",r=>({atk:r,def:r,hp:r})],
+ ["ba","Battle Alchemist",1,12,["df","am"],5,4,"util","Second elixir slot",r=>({})]
+];
+const N={};QN.forEach(q=>N[q[0]]={id:q[0],name:q[1],max:q[2],cost:q[3],needs:q[4],row:q[5],col:q[6],kind:q[7],txt:q[8],fx:q[9]});
+const ids=Object.keys(N);
+const MINE={cm:1,gi:8,wm:20,ss:5,is:1,na:0,qm:5,bi:8,ke:3,ps:3,ds:1,fo:0,mw:3,fs:3,sb:1,df:1,ub:1,ls:0,of:0,am:1,rm:0,rd:0,wl:1,ba:1};
+const spentOf=r=>ids.reduce((a,i)=>a+(r[i]||0)*N[i].cost,0);
+let R={...MINE},TOTAL=spentOf(MINE)+5,mode="add";
+try{const s=JSON.parse(localStorage.getItem("questplanner.v2")||"null");if(s&&s.r){R={...MINE,...s.r};TOTAL=s.total||TOTAL}}catch(e){}
+const save=()=>{try{localStorage.setItem("questplanner.v2",JSON.stringify({r:R,total:TOTAL}))}catch(e){}};
+const stats=r=>{const o={atk:0,spd:0,crit:0,cd:0,abil:0,boss:0,cdr:0,def:0,hp:0,mana:0,dr:0};ids.forEach(i=>{const f=N[i].fx(r[i]||0);for(const k in f)o[k]+=f[k]});return o};
+const S0=stats(MINE);
+const BASEDPS=()=>(typeof ANCHOR!=="undefined"?ANCHOR.dps:13466);
+function mult(r,boss){const s=stats(r);let m=(1+s.atk/100)/(1+S0.atk/100);
+ m*=1+W.abil/100*(s.abil-S0.abil);m*=1+W.crit/100*(s.crit-S0.crit);m*=1+W.cd/100*(s.cd-S0.cd);m*=1+W.spd/100*(s.spd-S0.spd);
+ if(boss)m*=1+W.boss/100*(s.boss-S0.boss);return m}
+const kids=id=>ids.filter(i=>N[i].needs.includes(id));
+function withAdd(id,r){const o={...r};const take=x=>{N[x].needs.forEach(n=>{if(!(o[n]>0))take(n)});if(!(o[x]>0)||x===id)o[x]=(o[x]||0)+1};take(id);return o}
+function withRemove(id,r){const o={...r};o[id]=Math.max(0,(o[id]||0)-1);const drop=x=>{if(o[x]>0)return;kids(x).forEach(k=>{if(o[k]>0){o[k]=0;drop(k)}})};drop(id);return o}
+const open=(id,r)=>N[id].needs.every(n=>r[n]>0);
+const fmt=x=>Math.round(x).toLocaleString();
+const sg=(x,d=2)=>(x>=0?"+":"")+x.toFixed(d);
+function nodeHtml(id){const n=N[id],rk=R[id]||0,mine=MINE[id]||0;const cls=["qtn"];
+ if(rk>0)cls.push("on");else if(mine>0)cls.push("mineonly");else if(!open(id,R))cls.push("locked");
+ if(rk*n.cost>1)cls.push("multi");
+ const cap=n.max?`${rk}/${n.max}`:`${rk} / no cap`;
+ const tag=n.kind==="dps"?"DPS":n.kind==="util"?"Utility":"No DPS";
+ const need=n.needs.length&&!open(id,R)?`<span class="mt">needs ${n.needs.map(x=>N[x].name).join(", ")}</span>`:"";
+ const cur=id==="wm"?` (now +${wm(rk).toFixed(2)}%)`:"";
+ return `<button type="button" class="${cls.join(" ")}" data-qt="${id}"><span class="tag ${n.kind}">${tag}</span><span class="nm">${n.name}</span><span class="rk">${cap} · ${n.cost} QP${n.max===1?"":"/level"}</span><span class="mt">${n.txt}${cur}</span>${need}</button>`}
+function render(){
+ const rows=[];for(let r=0;r<=5;r++){const cells=Array(9).fill('<div class="qtspacer"></div>');ids.filter(i=>N[i].row===r).forEach(i=>cells[N[i].col]=nodeHtml(i));rows.push(`<div class="qtrow">${cells.join("")}</div>`)}
+ document.getElementById("qtTree").innerHTML=rows.join("");
+ const sp=spentOf(R),m=mult(R,false),mb=mult(R,true),s=stats(R),d=BASEDPS();
+ document.getElementById("qtDps").innerHTML=`${fmt(d*m)} <small>DPS</small>`;
+ const dd=(m-1)*100;document.getElementById("qtDelta").innerHTML=Math.abs(dd)<.005?`<span>Matches my tree (${fmt(d)})</span>`:`<span class="${dd>=0?"up":"dn"}">${sg(dd)}% vs my tree</span>`;
+ document.getElementById("qtKv").innerHTML=
+  `<dt>QP spent / owned</dt><dd><span class="${sp>TOTAL?"over":""}">${sp}</span> / <input id="qtTotal" type="number" min="0" value="${TOTAL}" style="width:70px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);font:500 .85rem var(--f-mono);padding:2px 4px" aria-label="QP owned"></dd>`+
+  `<dt>QP free</dt><dd class="${TOTAL-sp<0?"over":""}">${TOTAL-sp}</dd>`+
+  `<dt>Boss fights vs my tree</dt><dd>${sg((mb-1)*100)}%</dd>`+
+  `<dt>Attack</dt><dd>+${s.atk.toFixed(1)}%</dd><dt>Weapon speed</dt><dd>+${s.spd.toFixed(2)}%</dd>`+
+  `<dt>Ability damage</dt><dd>+${s.abil}%</dd><dt>Crit chance · crit damage</dt><dd>+${s.crit.toFixed(1)}% · +${s.cd}%</dd>`+
+  `<dt>Boss damage</dt><dd>+${s.boss}%</dd><dt>CDR · max mana</dt><dd>${s.cdr.toFixed(1)}% · +${s.mana}%</dd>`+
+  `<dt>DEF · HP · damage reduction</dt><dd>+${s.def.toFixed(1)}% · +${s.hp.toFixed(1)}% · +${s.dr.toFixed(1)}%</dd>`;
+ const ti=document.getElementById("qtTotal");ti.onchange=()=>{TOTAL=Math.max(0,+ti.value||0);save();render()};
+ // best next
+ const opts=[];ids.forEach(i=>{const n=N[i];if(n.max&&(R[i]||0)>=n.max)return;const o=withAdd(i,R);const c=spentOf(o)-sp;const g=(mult(o,false)/m-1)*100,gb=(mult(o,true)/mb-1)*100;opts.push({i,c,g,gb,pp:g/c})});
+ const dpsO=opts.filter(o=>o.g>.001).sort((a,b)=>b.pp-a.pp).slice(0,3);
+ const utilO=opts.filter(o=>N[o.i].kind==="util"&&o.g<=.001).sort((a,b)=>a.c-b.c).slice(0,3);
+ const bossO=opts.filter(o=>o.g<=.001&&o.gb>.001).slice(0,2);
+ const item=(o,txt)=>`<button type="button" class="item" data-qtadd="${o.i}"><span class="nm">${N[o.i].name}<span class="sm">${o.c} QP${o.c>N[o.i].cost?" with the nodes it needs":""} · ${txt}</span></span><span class="pv ${o.g>0?"up":""}">${o.g>0?sg(o.g,3)+"%":"utility"}</span></button>`;
+ document.getElementById("qtBest").innerHTML=(dpsO.map(o=>item(o,sg(o.pp,3)+"% per QP")).join("")+bossO.map(o=>item(o,sg(o.gb,2)+"% on bosses")).join("")+utilO.map(o=>item(o,N[o.i].txt)).join(""))||`<p class="note">Nothing left to buy.</p>`;
+ // respec check
+ const needed=x=>kids(x).some(k=>R[k]>0);
+ let free=0;const parts=[];ids.forEach(i=>{if(N[i].kind!=="none"||!(R[i]>0))return;const keep=kids(i).length?1:0;const q=(R[i]-keep)*N[i].cost;if(q>0){free+=q;parts.push(`${N[i].name} ${q} QP`)}});
+ const lv=R.wm||0;let wl=lv,left=free;while(left>=3){wl++;left-=3}
+ const gain=(Math.pow(1+0,1)*(1+W.spd/100*(wm(wl)-wm(lv)))-1)*100;
+ document.getElementById("qtRespec").innerHTML=free?`${free} QP sit in extra ranks that add no DPS. Each of these keeps 1 rank so every node below it stays unlocked: ${parts.join(", ")}. If Reset is free, moving them into Weapon Mastery gives ${wl-lv} more levels, about ${sg(gain)}% DPS. Quick Mind's cooldown reduction adds almost nothing in a party but helps a little solo.`:`Every QP is in a node that adds DPS or utility, or in the 1 rank that unlocks the nodes below it.`;
+}
+document.getElementById("qt").addEventListener("click",e=>{
+ const b=e.target.closest("[data-qt]");const a=e.target.closest("[data-qtadd]");
+ const id=b?b.dataset.qt:a?a.dataset.qtadd:null;if(!id)return;const n=N[id];
+ if(mode==="add"||a){if(n.max&&R[id]>=n.max)return;R=withAdd(id,R)}else{if(!(R[id]>0))return;R=withRemove(id,R)}
+ save();render()});
+const setMode=m=>{mode=m;document.getElementById("qtAdd").setAttribute("aria-pressed",m==="add");document.getElementById("qtRm").setAttribute("aria-pressed",m==="rm")};
+document.getElementById("qtAdd").onclick=()=>setMode("add");document.getElementById("qtRm").onclick=()=>setMode("rm");
+document.getElementById("qtMine").onclick=()=>{R={...MINE};save();render()};
+document.getElementById("qtClear").onclick=()=>{R={};ids.forEach(i=>R[i]=0);save();render()};
+render();
+})();
+</script>
+
 
 </body>
 </html>
