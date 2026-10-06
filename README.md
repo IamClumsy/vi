@@ -1,6 +1,6 @@
 # Void Idle Tools
 
-A static site: seven tool pages plus a hub page. There is no build step.
+A static site: eight tool pages plus a hub page. There is no build step.
 
 ## Deploy to Vercel
 
@@ -13,6 +13,7 @@ From the command line: run `npx vercel` in this folder, then `npx vercel --prod`
 | Path | Page |
 | --- | --- |
 | `/` | Hub with links to every tool |
+| `/new-player` | New Player Build (both trees, points 1 to 100) |
 | `/bow-planner` | Bow Planner |
 | `/bow-roadmap` | Bow Roadmap |
 | `/bow-endgame` | Bow Endgame |
