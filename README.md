@@ -13,13 +13,13 @@ From the command line: run `npx vercel` in this folder, then `npx vercel --prod`
 | Path | Page |
 | --- | --- |
 | `/` | Hub with links to every tool |
-| `/new-player` | New Player Build (both trees, points 1 to 100) |
+| `/new-player` | New Player Build |
 | `/bow-planner` | Bow Planner |
 | `/bow-roadmap` | Bow Roadmap |
 | `/bow-endgame` | Bow Endgame |
-| `/bow-build` | Bow Build Guide (gear, runes, stats, Quest Tree, combat logs) |
+| `/bow-build` | Bow Build Guide |
 | `/general-planner` | General Planner |
 | `/general-roadmap` | General Roadmap |
 | `/general-endgame` | General Endgame |
 
-`vercel.json` turns on clean URLs, so `/bow-planner` serves `bow-planner.html`. Planner settings are saved in each visitor's own browser.
+`vercel.json` turns on clean URLs, so `/bow-planner` serves `bow-planner.html`. Shared styling and behaviour live in `site.css` and `site.js`. Planner settings and the light or dark choice are saved in each visitor's own browser.
