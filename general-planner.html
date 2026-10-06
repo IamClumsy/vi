@@ -110,7 +110,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;text-align:right;font:500 .88rem 
 <style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
 </head>
 <body>
-<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner" aria-current="page">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/bow-build">Bow Build Guide</a><a href="/general-planner" aria-current="page">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
 
 
 <div class="wrap">
@@ -242,7 +242,7 @@ const TYPES={
   pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
   inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
 };
-const ANCHOR={dps:13466,crit:68.3,cd:374.03,interval:1.11};
+const ANCHOR={dps:14069,crit:68.3,cd:375.53,interval:1.11};
 const K={dmgBase:152,cd:.00255,crit:.00622,spd:.00342};
 const N=[],byId={},kids={};
 function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
@@ -258,7 +258,7 @@ function lane(key,title,parent,chain,leaves,row){
 const P="power",A="aim",E="edge",M="malice",H="haste";
 lane("c1","Column 1","pof",[[P,1],[A,1],[E,1],[M,2],[H,1],[P,1],[A,1],[E,1,"Edge Path"],[E,1],[E,1]],[[H,0],[A,0]],"main");
 lane("c2","Column 2","pof",[[E,1],[M,2],[H,1],[P,1],[H,0],[P,0]],[],"main");
-lane("c3","Column 3","pof",[["hastefocus",1],[A,0],[M,0],[P,0]],[],"main");
+lane("c3","Column 3","pof",[["hastefocus",1],[A,1],[M,1],[P,0]],[],"main");
 lane("c4","Column 4","pof",[["powerfocus",1],[E,1],[H,0],[A,0]],[],"main");
 lane("c5","Column 5","pof",[[A,1],[E,1],[M,2],[H,1],[P,1],[A,1]],[],"main");
 lane("c2b","Column 2 branch","c2_3",[[A,1],[E,1],[M,2],[M,2,"Malice Path"],[M,2],[M,2]],[[E,0],[P,0]],"branch");
@@ -273,7 +273,7 @@ lane("c5e","Power Path","c5c_0",[[P,1,"Power Path"],[P,1],[P,1]],[[E,0],[H,0]],"
 const isPath=n=>false;const mult=n=>isPath(n)?2:1;
 const MY={};N.forEach(n=>MY[n.id]=n.my);
 const maxOf=id=>TYPES[byId[id].type].max;
-let R={},POINTS=55,mode="add";
+let R={},POINTS=57,mode="add";
 try{const s=JSON.parse(localStorage.getItem("generalplanner.v1")||"null");if(s&&s.r){R=s.r;POINTS=s.points||55}}catch(e){}
 if(!Object.keys(R).length)R={...MY};
 N.forEach(n=>{if(R[n.id]==null)R[n.id]=0;R[n.id]=Math.min(R[n.id],maxOf(n.id))});
@@ -382,7 +382,7 @@ document.addEventListener("click",e=>{
 $("#modeAdd").onclick=()=>{mode="add";$("#modeAdd").setAttribute("aria-pressed","true");$("#modeRm").setAttribute("aria-pressed","false");$("#treepanel").classList.remove("rm")};
 $("#modeRm").onclick=()=>{mode="rm";$("#modeRm").setAttribute("aria-pressed","true");$("#modeAdd").setAttribute("aria-pressed","false");$("#treepanel").classList.add("rm")};
 $("#mineBtn").onclick=()=>{R={...MY};POINTS=Math.max(POINTS,spent(MY));render()};
-if(spent(MY)!==55)console.warn("my build points",spent(MY));
+if(spent(MY)!==57)console.warn("my build points",spent(MY));
 render();
 </script>
 <script>
@@ -425,7 +425,7 @@ try{const s=JSON.parse(localStorage.getItem("questplanner.v2")||"null");if(s&&s.
 const save=()=>{try{localStorage.setItem("questplanner.v2",JSON.stringify({r:R,total:TOTAL}))}catch(e){}};
 const stats=r=>{const o={atk:0,spd:0,crit:0,cd:0,abil:0,boss:0,cdr:0,def:0,hp:0,mana:0,dr:0};ids.forEach(i=>{const f=N[i].fx(r[i]||0);for(const k in f)o[k]+=f[k]});return o};
 const S0=stats(MINE);
-const BASEDPS=()=>(typeof ANCHOR!=="undefined"?ANCHOR.dps:13466);
+const BASEDPS=()=>(typeof ANCHOR!=="undefined"?ANCHOR.dps:14069);
 function mult(r,boss){const s=stats(r);let m=(1+s.atk/100)/(1+S0.atk/100);
  m*=1+W.abil/100*(s.abil-S0.abil);m*=1+W.crit/100*(s.crit-S0.crit);m*=1+W.cd/100*(s.cd-S0.cd);m*=1+W.spd/100*(s.spd-S0.spd);
  if(boss)m*=1+W.boss/100*(s.boss-S0.boss);return m}

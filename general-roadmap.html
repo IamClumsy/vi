@@ -140,10 +140,10 @@ ol.steps li:first-child{border-top:0}
 <style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
 </head>
 <body>
-<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner">General Planner</a><a href="/general-roadmap" aria-current="page">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/bow-build">Bow Build Guide</a><a href="/general-planner">General Planner</a><a href="/general-roadmap" aria-current="page">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
 
 <div class="wrap">
- <header class="top"><div><div class="eyebrow">Void Idle · Path of Force</div><h1>General <span class="tag">Roadmap</span></h1><p class="sub">Your 55-point General tree, and the next 15 points in the order to spend them (points 56 to 70).</p></div></header>
+ <header class="top"><div><div class="eyebrow">Void Idle · Path of Force</div><h1>General <span class="tag">Roadmap</span></h1><p class="sub">Your 57-point General tree, and the next 13 points in the order to spend them (points 58 to 70).</p></div></header>
  <div class="main">
   <div>
    <div class="treehead"><div class="legend"><span class="l-mine">Taken now</span><span class="l-plan">Planned (number = order)</span><span class="l-multi">More than 1 point</span></div></div>
@@ -154,7 +154,7 @@ ol.steps li:first-child{border-top:0}
     <div class="big"><span id="dpsEnd"></span> <small>DPS</small></div>
     <div class="up" id="dpsUp"></div><p class="warn"><b>Party vs solo:</b> DPS figures assume your usual party (four party auras: Attack, Haste, Defense and Wisdom, plus 16% party vulnerable). Solo totals are about 20% lower, but each node's percentage gain stays about the same.</p>
     <p class="warn">Planner estimate from your Combat Stats calibration, not a log result. Your General tree points match your Bow points but come from their own pool, so spending one never uses up the other.</p></div>
-   <div class="card"><div class="eyebrow">Spend order · points 56 to 70</div><ol class="steps" id="steps"></ol>
+   <div class="card"><div class="eyebrow">Spend order · points 58 to 70</div><ol class="steps" id="steps"></ol>
     <p class="warn">After step 3 every pick is worth about the same (+0.17% per point), so the order of steps 4 to 13 is flexible. Aim adds nothing by itself (hit is capped), it is only a stepping stone to column 3 Malice. Path nodes give the same value as the regular nodes (checked against their tooltips).</p></div>
   </div>
  </div>
@@ -179,7 +179,7 @@ const TYPES={
   pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
   inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
 };
-const ANCHOR={dps:13466,crit:68.3,cd:374.03,interval:1.11};
+const ANCHOR={dps:14069,crit:68.3,cd:375.53,interval:1.11};
 const K={dmgBase:152,cd:.00255,crit:.00622,spd:.00342};
 const N=[],byId={},kids={};
 function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
@@ -195,7 +195,7 @@ function lane(key,title,parent,chain,leaves,row){
 const P="power",A="aim",E="edge",M="malice",H="haste";
 lane("c1","Column 1","pof",[[P,1],[A,1],[E,1],[M,2],[H,1],[P,1],[A,1],[E,1,"Edge Path"],[E,1],[E,1]],[[H,0],[A,0]],"main");
 lane("c2","Column 2","pof",[[E,1],[M,2],[H,1],[P,1],[H,0],[P,0]],[],"main");
-lane("c3","Column 3","pof",[["hastefocus",1],[A,0],[M,0],[P,0]],[],"main");
+lane("c3","Column 3","pof",[["hastefocus",1],[A,1],[M,1],[P,0]],[],"main");
 lane("c4","Column 4","pof",[["powerfocus",1],[E,1],[H,0],[A,0]],[],"main");
 lane("c5","Column 5","pof",[[A,1],[E,1],[M,2],[H,1],[P,1],[A,1]],[],"main");
 lane("c2b","Column 2 branch","c2_3",[[A,1],[E,1],[M,2],[M,2,"Malice Path"],[M,2],[M,2]],[[E,0],[P,0]],"branch");
@@ -216,7 +216,6 @@ function fx(r){const o={dmg:0,cd:0,crit:0,spd:0};for(const n of N){const rk=r[n.
 const FMY=fx(MY);
 const MYR={...MY};
 const PLAN=[
- {pts:"56 to 57",ids:["c3_1","c3_2"],why:"Aim is only the stepping stone. Malice rank 1 gives +1.5% crit damage."},
  {pts:"58",ids:["c3_2"],why:"Malice rank 2: another +1.5% crit damage. The best single point left."},
  {pts:"59",ids:["c1_2"],why:"Edge rank 2 in column 1: +0.25% crit chance."},
  {pts:"60 to 61",ids:["c2c_0","c2c_1"],why:"Edge Path branch: two Edge ranks (+0.5% crit chance)."},
@@ -242,7 +241,7 @@ $("steps").innerHTML=PLAN.map((s,i)=>{s.ids.forEach(id=>rr[id]++);const d=dps2(r
  return `<li><span class="n">${i+1}</span><span class="nm2">${names}</span><span class="g">${g>0?"+":""}${g.toFixed(2)}%</span><span class="pt">points ${s.pts}</span><span class="dps">${Math.round(d).toLocaleString()} DPS</span><span class="d">${s.why}</span></li>`}).join("");
 if(spent2(rr)!==70)console.warn("end points",spent2(rr));
 const endD=dps2(rr);$("dpsEnd").textContent=Math.round(endD).toLocaleString();
-$("dpsUp").textContent="+"+((endD/ANCHOR.dps-1)*100).toFixed(1)+"% over your 55-point build ("+ANCHOR.dps.toLocaleString()+")";
+$("dpsUp").textContent="+"+((endD/ANCHOR.dps-1)*100).toFixed(1)+"% over your 57-point build ("+ANCHOR.dps.toLocaleString()+")";
 function nodeEl(id){const n=byId[id],mx=maxOf(id),mine=MYR[id],pl=(planned[id]||[]).length;
  const b=document.createElement("div");b.className="node "+(pl?"plan":"mine");
  const eff=n.type==="aim"?"hit capped":TYPES[n.type].txt.replace(" (capped at 95%)","");

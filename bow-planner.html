@@ -164,7 +164,7 @@ details.how ul{padding-left:18px;margin:8px 0 0;max-width:80ch} details.how li{m
 <style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
 </head>
 <body>
-<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner" aria-current="page">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner" aria-current="page">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/bow-build">Bow Build Guide</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
 
 
 <div class="wrap">
@@ -185,7 +185,7 @@ details.how ul{padding-left:18px;margin:8px 0 0;max-width:80ch} details.how li{m
     <div class="statbody">
       <div>
         <div class="eyebrow" style="margin-bottom:8px">Character sheet, no aura</div>
-        <p class="note" style="margin:0 0 8px">Loaded from your Lv 56 sheet (scroll off, T4 Precise and Cleaving). The in-game sheet already includes your Bow tree. For fields marked "minus tree", subtract what the tree adds (Apex: +10% crit, +17% damage; Killing Shot and Marked Prey ranks) so it isn't counted twice.</p>
+        <p class="note" style="margin:0 0 8px">Loaded from your Lv 57 sheet (Pierce taken, General Aim and Malice rank 1). The in-game sheet already includes your Bow tree. For fields marked "minus tree", subtract what the tree adds (Apex: +10% crit, +17% damage; Killing Shot and Marked Prey ranks) so it isn't counted twice.</p>
         <div class="fields" id="f-char"></div>
       </div>
       <div>
@@ -323,7 +323,7 @@ const RAW=[
 ["hunters_mark_2","Hunter's Mark II","tier",3,1,"hunters_mark_1",null,null,"101% ATK. 16% vulnerable, shreds 13% DEF for 23s. CD 30s. Mana 60"],
 ["hunters_mark_3","Hunter's Mark III","tier",4,1,"hunters_mark_2",null,null,"114% ATK. 19% vulnerable, shreds 16% DEF for 23s. CD 30s. Mana 75"],
 ["hunters_mark_4","Hunter's Mark IV","tier4",5,1,"hunters_mark_3",null,null,"127% ATK. 22% vulnerable, shreds 20% DEF for 23s. CD 30s. Mana 83"],
-["hm_exposed","Exposed","passive",2,1,"hunters_mark_2",null,"hm_mark","Applies DEF shred 15% for 23s."],
+["hm_exposed","Exposed","passive",2,1,"hunters_mark_2",null,"hm_mark","The mark's own DEF shred is 20% stronger (20% → 24% at rank IV)."],
 ["hm_lingering","Lingering","passive",2,1,"hunters_mark_2",null,"hm_mark","The mark lasts 5% longer."],
 ["hm_quarry","Quarry","passive",2,1,"hunters_mark_2",null,"hm_mark","+25% stronger vulnerable."],
 ["rapid_draw","Killing Shot","passive",1,4,"venom_tip",null,null,"A permanent boost to your critical damage.",["+6.7% crit damage","+10.1% crit damage","+13.4% crit damage","+16.8% crit damage"]],
@@ -374,27 +374,27 @@ const byId=Object.fromEntries(N.map(n=>[n.id,n]));
 
 // ---------- Settings ----------
 const CHAR=[
- ["atk","Attack","",1085],["interval","Attack interval","s",1.1397],["hit","Hit chance (minus Bow tree)","%",92.70],["crit","Crit chance (minus tree)","%",58.3],
- ["critDmg","Crit damage (minus tree)","%",360.63],["execute","Execute damage","%",21.5],["ability","Ability damage","%",38.9],["damage","Damage (minus tree)","%",33.35],
- ["boss","Boss damage","%",7],["cdr","Cooldown reduction","%",23.86],["regen","Mana regen","/10s",81.9],["maxMana","Max mana","",2092]
+ ["atk","Attack","",1095],["interval","Attack interval","s",1.1397],["hit","Hit chance (minus Bow tree)","%",92.90],["crit","Crit chance (minus tree)","%",58.3],
+ ["critDmg","Crit damage (minus tree)","%",362.13],["execute","Execute damage","%",21.5],["ability","Ability damage","%",38.9],["damage","Damage (minus tree)","%",33.85],
+ ["boss","Boss damage","%",7],["cdr","Cooldown reduction","%",23.86],["regen","Mana regen","/10s",84.8],["maxMana","Max mana","",2123]
 ];
 const FIGHT=[
- ["points","Mastery points","pts",55],["mastery","Mastery level","",55],["slots","Ability slots","",4],["fight","Fight length","s",300],
+ ["points","Mastery points","pts",57],["mastery","Mastery level","",57],["slots","Ability slots","",4],["fight","Fight length","s",300],
  ["armor","Enemy damage absorbed","%",40],["execFrac","Time below 40% HP","%",40],["enemies","Enemies in pack","AoE",3],["packLife","Pack lifetime","s · AoE",15],
  ["atkPerStr","Attack per STR","",1.67],["partyVuln","Vulnerable from party","%",0]
 ];
 const CHECKS=[["targetBoss","Target is a boss",false],["venomOn","Venom imbue on",true],["party","Party play: skip defensive nodes",true],["vulnMax","Vulnerable: only strongest applies",false]];
 const DEFENSIVE=new Set(["evasion_1","evasion_2","evasion_3","evasion_4","ev_dodge","ev_lasting","ev_mend","rf_phantom","pa_leech"]);
-const DEFAULT_SEL={venom_tip:1,keen_eye:1,steady_aim:1,marked_prey_1:1,marked_prey_2:1,marked_prey_3:1,marked_prey_4:1,hunters_mark:1,parasitic_1:1,parasitic_2:1,parasitic_3:1,rapid_draw:3,rapid_fire_1:1,rapid_fire_2:1,rapid_fire_3:1,rf_aimed:1,arrow_shower_1:1,arrow_shower_2:1,arrow_shower_3:1,single_arrow:1,apex_predator:1};
+const DEFAULT_SEL={venom_tip:1,keen_eye:1,steady_aim:1,marked_prey_1:1,marked_prey_2:1,marked_prey_3:1,marked_prey_4:1,hunters_mark:1,parasitic_1:1,parasitic_2:1,parasitic_3:1,pa_pierce:1,rapid_draw:3,rapid_fire_1:1,rapid_fire_2:1,rapid_fire_3:1,rf_aimed:1,arrow_shower_1:1,arrow_shower_2:1,arrow_shower_3:1,single_arrow:1,apex_predator:1};
 const MY_BUILD={...DEFAULT_SEL};
 let S={mode:"single",off:{}};
 for(const f of [...CHAR,...FIGHT])S[f[0]]=f[3];
 for(const c of CHECKS)S[c[0]]=c[2];
 let sel={...DEFAULT_SEL};
 let baseline=null;
-const NEWDEF={};for(const k of ["atk","interval","hit","crit","damage","regen","maxMana"])NEWDEF[k]=S[k];
-try{const saved=JSON.parse(localStorage.getItem("bowplanner.v16")||"null");if(saved){Object.assign(S,saved.S||{});if((saved.cv||0)<17)Object.assign(S,NEWDEF);if(S.mastery===70)S.mastery=54;if(saved.sel)sel=saved.sel;baseline=saved.baseline??null}}catch(e){}
-function save(){try{localStorage.setItem("bowplanner.v16",JSON.stringify({S,sel,baseline,cv:17}))}catch(e){}}
+const NEWDEF={};for(const k of ["atk","interval","hit","crit","critDmg","damage","regen","maxMana","points","mastery"])NEWDEF[k]=S[k];
+try{const saved=JSON.parse(localStorage.getItem("bowplanner.v16")||"null");if(saved){Object.assign(S,saved.S||{});if((saved.cv||0)<20){Object.assign(S,NEWDEF);if(saved.sel&&!saved.sel.pa_pierce)saved.sel.pa_pierce=1}if(S.mastery===70)S.mastery=54;if(saved.sel)sel=saved.sel;baseline=saved.baseline??null}}catch(e){}
+function save(){try{localStorage.setItem("bowplanner.v16",JSON.stringify({S,sel,baseline,cv:20}))}catch(e){}}
 
 // ---------- Tree rules ----------
 const has=(s,id)=>(s[id]||0)>0;
@@ -435,7 +435,7 @@ function params(s){
   };
   const U=P.unbound, half=U?.5:1, mm=m=>m*(U?2:1), cdDmg=b=>U?1:b*(1-P.cdr), cdSup=b=>b*(1-P.cdr);
   let r;
-  if(r=tier("hunters_mark"))P.abilities.push({key:"HM",name:"Hunter's Mark",pct:[.89,1.01,1.14,1.27][r-1]*half,cd:cdSup(30),mana:mm([53,60,75,83][r-1]),vuln:[.13,.16,.19,.22][r-1]*(h("hm_quarry")?1.25:1),shred:[.10,.13,.16,.20][r-1],dur:23*(h("hm_lingering")?1.05:1),exposed:h("hm_exposed")});
+  if(r=tier("hunters_mark"))P.abilities.push({key:"HM",name:"Hunter's Mark",pct:[.89,1.01,1.14,1.27][r-1]*half,cd:cdSup(30),mana:mm([53,60,75,83][r-1]),vuln:[.13,.16,.19,.22][r-1]*(h("hm_quarry")?1.25:1),shred:[.10,.13,.16,.20][r-1]*(h("hm_exposed")?1.2:1),dur:23*(h("hm_lingering")?1.05:1),exposed:h("hm_exposed")});
   if(r=tier("evasion"))P.abilities.push({key:"EV",name:"Evasion",cd:cdSup(30),mana:mm([30,45,60,75][r-1]),speed:[.15,.20,.25,.30][r-1],dur:[6,7,8,10][r-1]});
   if(r=tier("arrow_shower"))P.abilities.push({key:"AS",name:"Arrow Shower",pct:[.57,.82,1.08,1.33][r-1]*half*(h("as_downpour")?1.2:1),cd:cdDmg([14,13,12,11][r-1]),mana:mm([30,45,60,75][r-1]),shred:[.04,.06,.07,.09][r-1]*(h("as_acid")?1.2:1),acid:h("as_acid")?.08:0,soak:h("as_soak")?.06:0});
   if(r=tier("parasitic"))P.abilities.push({key:"PA",name:"Parasitic Arrow",pct:[.95,1.27,1.62,2.03][r-1]*half*(h("pa_heavy")?1.18:1),cd:cdDmg(18*(h("pa_heavy")?1.1:1)*(h("pa_quick")?.7:1)),mana:mm([45,53,68,75][r-1]),vuln:[.07,.09,.11,.13][r-1]*(h("pa_festering")?1.2:1),dot:h("pa_hemotoxin")?.11:0,pierce:h("pa_pierce")});
@@ -465,7 +465,7 @@ function sim(P,abs,runs,dt,full){
     const curInt=t=>{let i=P.interval/(1+(t<evUntil?evSpeed:0));if(rfShots>0&&t<rfUntil)i/=2;return i};
     const cast=(a,t)=>{
       mana-=a.mana;ready[a.key]=t+Math.max(.05,a.cd);A.casts[a.key]++;
-      if(a.key==="HM"){B.HM+=hitAb(T,t,a.pct,false);T.v.hm=[a.vuln,t+a.dur];T.s.hm=[a.shred,t+a.dur];if(a.exposed)T.s.hmx=[.15,t+a.dur]}
+      if(a.key==="HM"){B.HM+=hitAb(T,t,a.pct,false);T.v.hm=[a.vuln,t+a.dur];T.s.hm=[a.shred,t+a.dur]}
       else if(a.key==="EV"){evUntil=t+a.dur;evSpeed=a.speed}
       else if(a.key==="AS"){B.AS+=hitAb(T,t,a.pct,false);if(NE>1)B.AS+=hitAb(K,t,a.pct,false)*(NE-1);
         for(const X of NE>1?[T,K]:[T]){X.s.as=[a.shred,t+6];if(a.acid)X.v.acid=[a.acid,t+6];if(a.soak)X.d.soak=[a.soak,t+6]}}

@@ -140,10 +140,10 @@ ol.steps li:first-child{border-top:0}
 <style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
 </head>
 <body>
-<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame" aria-current="page">General Endgame</a></nav>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/bow-build">Bow Build Guide</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame" aria-current="page">General Endgame</a></nav>
 
 <div class="wrap">
- <header class="top"><div><div class="eyebrow">Void Idle · Path of Force</div><h1>General <span class="tag">Endgame</span></h1><p class="sub">Your 55-point General tree, and the best way to spend points 56 to 100.</p></div></header>
+ <header class="top"><div><div class="eyebrow">Void Idle · Path of Force</div><h1>General <span class="tag">Endgame</span></h1><p class="sub">Your 57-point General tree, and the best way to spend points 58 to 100.</p></div></header>
  <div class="main">
   <div>
    <div class="treehead"><div class="legend"><span class="l-mine">Taken now</span><span class="l-plan">Planned (number = order)</span><span class="l-multi">More than 1 point</span></div></div>
@@ -154,7 +154,7 @@ ol.steps li:first-child{border-top:0}
     <div class="big"><span id="dpsEnd"></span> <small>DPS</small></div>
     <div class="up" id="dpsUp"></div><p class="warn"><b>Party vs solo:</b> DPS figures assume your usual party (four party auras: Attack, Haste, Defense and Wisdom, plus 16% party vulnerable). Solo totals are about 20% lower, but each node's percentage gain stays about the same.</p>
     <p class="warn">Planner estimate from your Combat Stats calibration, not a log result. Your General tree points match your Bow points but come from their own pool, so spending one never uses up the other.</p></div>
-   <div class="card"><div class="eyebrow">Spend order · points 56 to 100</div><ol class="steps" id="steps"></ol>
+   <div class="card"><div class="eyebrow">Spend order · points 58 to 100</div><ol class="steps" id="steps"></ol>
     <p class="warn">Past the first few blocks nearly every pick is worth about +0.17% per point, so the order of the later steps is flexible. Aim adds nothing by itself (hit is capped); it is only a stepping stone. Haste goes last because it is worth the least per point, and attack speed stays above 1.00 s the whole way. Path nodes give the same value as the regular nodes (checked against their tooltips).</p></div>
   </div>
  </div>
@@ -179,7 +179,7 @@ const TYPES={
   pof:{name:"Path of Force",max:1,fx:{dmg:.5},txt:"+0.5% damage"},
   inner:{name:"Inner Focus",max:4,fx:{dmg:1},txt:"+1% damage"}
 };
-const ANCHOR={dps:13466,crit:68.3,cd:374.03,interval:1.11};
+const ANCHOR={dps:14069,crit:68.3,cd:375.53,interval:1.11};
 const K={dmgBase:152,cd:.00255,crit:.00622,spd:.00342};
 const N=[],byId={},kids={};
 function add(id,type,parent,my,label){const n={id,type,parent,my,label:label||TYPES[type].name};N.push(n);byId[id]=n;(kids[parent]=kids[parent]||[]).push(id);return id}
@@ -195,7 +195,7 @@ function lane(key,title,parent,chain,leaves,row){
 const P="power",A="aim",E="edge",M="malice",H="haste";
 lane("c1","Column 1","pof",[[P,1],[A,1],[E,1],[M,2],[H,1],[P,1],[A,1],[E,1,"Edge Path"],[E,1],[E,1]],[[H,0],[A,0]],"main");
 lane("c2","Column 2","pof",[[E,1],[M,2],[H,1],[P,1],[H,0],[P,0]],[],"main");
-lane("c3","Column 3","pof",[["hastefocus",1],[A,0],[M,0],[P,0]],[],"main");
+lane("c3","Column 3","pof",[["hastefocus",1],[A,1],[M,1],[P,0]],[],"main");
 lane("c4","Column 4","pof",[["powerfocus",1],[E,1],[H,0],[A,0]],[],"main");
 lane("c5","Column 5","pof",[[A,1],[E,1],[M,2],[H,1],[P,1],[A,1]],[],"main");
 lane("c2b","Column 2 branch","c2_3",[[A,1],[E,1],[M,2],[M,2,"Malice Path"],[M,2],[M,2]],[[E,0],[P,0]],"branch");
@@ -215,7 +215,7 @@ const maxOf=id=>TYPES[byId[id].type].max;
 function fx(r){const o={dmg:0,cd:0,crit:0,spd:0};for(const n of N){const rk=r[n.id]||0;if(!rk)continue;const f=TYPES[n.type].fx;for(const k in f)o[k]+=f[k]*rk*mult(n)}return o}
 const FMY=fx(MY);
 const MYR={...MY};
-const PLAN=[{"pts": "56 to 58", "ids": ["c3_1", "c3_2", "c3_2"]}, {"pts": "59 to 63", "ids": ["c1a_0", "c1a_1", "c1a_2", "c1a_L0", "c1a_L0"]}, {"pts": "64", "ids": ["c1_2"]}, {"pts": "65 to 66", "ids": ["c2b_L0", "c2b_L0"]}, {"pts": "67", "ids": ["c1_0"]}, {"pts": "68", "ids": ["c1_7"]}, {"pts": "69", "ids": ["c1_5"]}, {"pts": "70", "ids": ["c1_8"]}, {"pts": "71 to 72", "ids": ["c3_3", "c3_3"]}, {"pts": "73 to 75", "ids": ["c2c_0", "c2c_1", "c2c_1"]}, {"pts": "76", "ids": ["c2_3"]}, {"pts": "77 to 78", "ids": ["c2b_L1", "c2b_L1"]}, {"pts": "79 to 80", "ids": ["c2c_2", "c2c_2"]}, {"pts": "81", "ids": ["c5_4"]}, {"pts": "82", "ids": ["c1_9"]}, {"pts": "83", "ids": ["c1a_L1"]}, {"pts": "84", "ids": ["c2_0"]}, {"pts": "85", "ids": ["c1a_L1"]}, {"pts": "86", "ids": ["c4_1"]}, {"pts": "87", "ids": ["c5e_0"]}, {"pts": "88 to 89", "ids": ["c5e_L0", "c5e_L0"]}, {"pts": "90", "ids": ["c5e_1"]}, {"pts": "91", "ids": ["c5e_2"]}, {"pts": "92", "ids": ["c5_1"]}, {"pts": "93", "ids": ["c2b_1"]}, {"pts": "94", "ids": ["c1m_0"]}, {"pts": "95", "ids": ["c2c_0"]}, {"pts": "96", "ids": ["c5c_0"]}, {"pts": "97 to 99", "ids": ["c2_4", "c2_5", "c2_5"]}, {"pts": "100", "ids": ["c1_4"]}];
+const PLAN=[{"pts": "58", "ids": ["c3_2"]}, {"pts": "59 to 63", "ids": ["c1a_0", "c1a_1", "c1a_2", "c1a_L0", "c1a_L0"]}, {"pts": "64", "ids": ["c1_2"]}, {"pts": "65 to 66", "ids": ["c2b_L0", "c2b_L0"]}, {"pts": "67", "ids": ["c1_0"]}, {"pts": "68", "ids": ["c1_7"]}, {"pts": "69", "ids": ["c1_5"]}, {"pts": "70", "ids": ["c1_8"]}, {"pts": "71 to 72", "ids": ["c3_3", "c3_3"]}, {"pts": "73 to 75", "ids": ["c2c_0", "c2c_1", "c2c_1"]}, {"pts": "76", "ids": ["c2_3"]}, {"pts": "77 to 78", "ids": ["c2b_L1", "c2b_L1"]}, {"pts": "79 to 80", "ids": ["c2c_2", "c2c_2"]}, {"pts": "81", "ids": ["c5_4"]}, {"pts": "82", "ids": ["c1_9"]}, {"pts": "83", "ids": ["c1a_L1"]}, {"pts": "84", "ids": ["c2_0"]}, {"pts": "85", "ids": ["c1a_L1"]}, {"pts": "86", "ids": ["c4_1"]}, {"pts": "87", "ids": ["c5e_0"]}, {"pts": "88 to 89", "ids": ["c5e_L0", "c5e_L0"]}, {"pts": "90", "ids": ["c5e_1"]}, {"pts": "91", "ids": ["c5e_2"]}, {"pts": "92", "ids": ["c5_1"]}, {"pts": "93", "ids": ["c2b_1"]}, {"pts": "94", "ids": ["c1m_0"]}, {"pts": "95", "ids": ["c2c_0"]}, {"pts": "96", "ids": ["c5c_0"]}, {"pts": "97 to 99", "ids": ["c2_4", "c2_5", "c2_5"]}, {"pts": "100", "ids": ["c1_4"]}];
 const WHY={malice:"Malice: +1.5% crit damage per rank.",edge:"Edge: +0.25% crit chance per rank.",power:"Power: +0.25% damage per rank.",haste:"Haste: +0.25% attack speed per rank.",aim:"Aim: no damage, only a stepping stone."};
 function why(s){const c={};s.ids.forEach(id=>{const t=byId[id].type;c[t]=(c[t]||0)+1});
  return Object.keys(c).sort((a,b)=>(b==="aim"?-1:0)-(a==="aim"?-1:0)||c[b]-c[a]).map(t=>`${c[t]}x ${WHY[t]||t}`).join(" ")}
@@ -232,7 +232,7 @@ $("steps").innerHTML=PLAN.map((s,i)=>{s.ids.forEach(id=>rr[id]++);const d=dps2(r
  return `<li><span class="n">${i+1}</span><span class="nm2">${names}</span><span class="g">${g>0?"+":""}${g.toFixed(2)}%</span><span class="pt">points ${s.pts}</span><span class="dps">${Math.round(d).toLocaleString()} DPS</span><span class="d">${why(s)}</span></li>`}).join("");
 if(spent2(rr)!==100)console.warn("end points",spent2(rr));
 const endD=dps2(rr);$("dpsEnd").textContent=Math.round(endD).toLocaleString();
-$("dpsUp").textContent="+"+((endD/ANCHOR.dps-1)*100).toFixed(1)+"% over your 55-point build ("+ANCHOR.dps.toLocaleString()+")";
+$("dpsUp").textContent="+"+((endD/ANCHOR.dps-1)*100).toFixed(1)+"% over your 57-point build ("+ANCHOR.dps.toLocaleString()+")";
 function nodeEl(id){const n=byId[id],mx=maxOf(id),mine=MYR[id],pl=(planned[id]||[]).length;
  const b=document.createElement("div");b.className="node "+(pl?"plan":"mine");
  const eff=n.type==="aim"?"hit capped":TYPES[n.type].txt.replace(" (capped at 95%)","");

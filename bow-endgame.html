@@ -143,10 +143,10 @@ ol.steps li:first-child{border-top:0}
 <style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
 </head>
 <body>
-<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame" aria-current="page">Bow Endgame</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame" aria-current="page">Bow Endgame</a><a href="/bow-build">Bow Build Guide</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
 
 <div class="wrap">
- <header class="top"><div><div class="eyebrow">Void Idle · The Patient Hunter</div><h1>Bow <span class="tag">Endgame</span></h1><p class="sub">Your 55-point build, and the best way to spend points 56 to 100. Every point finds a use.</p></div></header>
+ <header class="top"><div><div class="eyebrow">Void Idle · The Patient Hunter</div><h1>Bow <span class="tag">Endgame</span></h1><p class="sub">Your 57-point build, and the best way to spend points 58 to 100. Every point finds a use.</p></div></header>
  <div class="main">
   <div>
    <div class="treehead"><div class="legend"><span class="l-mine">Taken now</span><span class="l-plan">Planned (number = order)</span><span class="l-multi">More than 1 point</span></div></div>
@@ -156,10 +156,10 @@ ol.steps li:first-child{border-top:0}
   </div>
   <div class="rail">
    <div class="card hero"><div class="eyebrow">Single target DPS · planner</div>
-    <div class="big"><span>18,214</span> <small>DPS</small></div>
-    <div class="up">+35.3% over your 55-point build (13,466)</div><p class="warn"><b>Solo:</b> 10,829 now → 15,076 by point 100 (+39%), with your own Attack aura on and no party auras or party vulnerable. Hunter's Mark is worth much more solo (+16%) because it replaces the party's vulnerable, though mana runs short solo and Hunter's Mark IV adds nothing on its own, and Parasitic Arrow IV costs slightly more mana than it returns (15,124 at point 95, 15,076 at point 100).</p>
-    <p class="warn">Party settings: four party auras (Attack, Haste, Defense, Wisdom) and 16% party vulnerable on the target. Planner estimate using your real mana regen (80.8/10s with Party Wisdom), cooldown reduction and the 95% hit cap, run at Mastery 100. Stats will shift as you level, so treat the order as a guide.</p></div>
-   <div class="card"><div class="eyebrow">Spend order · points 56 to 100</div><ol class="steps" id="steps"></ol>
+    <div class="big"><span>18,507</span> <small>DPS</small></div>
+    <div class="up">+31.5% over your 57-point build (14,069)</div><p class="warn"><b>Solo:</b> 11,225 now → 15,320 by point 100 (+36%), with your own Attack aura on and no party auras or party vulnerable. Hunter's Mark is worth much more solo (+16%) because it replaces the party's vulnerable, though mana runs short solo and Hunter's Mark IV adds nothing on its own, and Parasitic Arrow IV costs slightly more mana than it returns (15,370 at point 95, 15,320 at point 100).</p>
+    <p class="warn">Party settings: four party auras (Attack, Haste, Defense, Wisdom) and 16% party vulnerable on the target. Planner estimate using your real mana regen (81.9/10s with Party Wisdom), cooldown reduction and the 95% hit cap, run at Mastery 100. Stats will shift as you level, so treat the order as a guide.</p></div>
+   <div class="card"><div class="eyebrow">Spend order · points 58 to 100</div><ol class="steps" id="steps"></ol>
     <p class="warn"><b>Ability slots:</b> the final build learns five abilities (Hunter's Mark, Arrow Shower, Parasitic Arrow, Piercing Shot, Rapid Fire) but you only have four slots. The planner's best four are Hunter's Mark, Parasitic Arrow, Piercing Shot and Rapid Fire, so Arrow Shower gets benched. You still need Arrow Shower I to III because Single Arrow and Apex Predator hang off them.<br><br><b>Tier IV nodes</b> (Rapid Fire IV, Hunter's Mark IV, Parasitic IV) need Mastery 60, so save points from 60 for them.</p></div>
   </div>
  </div>
@@ -173,21 +173,20 @@ const NODES={
  hm1:["Hunter's Mark I",2],hm2:["Hunter's Mark II",3],quarry:["Quarry",2],hm3:["Hunter's Mark III",4],hm4:["Hunter's Mark IV",5],
  rapid_draw:["Killing Shot",1],steady_aim:["Steady Aim",1],st1:["Sharpened Tip I",1],st2:["Sharpened Tip II",1],st3:["Sharpened Tip III",1],st4:["Sharpened Tip IV",1],
  rf1:["Rapid Fire I",2],rf2:["Rapid Fire II",3],rf3:["Rapid Fire III",4],rf4:["Rapid Fire IV",5],rf_aimed:["Aimed",2],apex:["Apex Predator",8]};
-const TAKEN={venom_tip:1,arrow_shower_1:1,arrow_shower_2:1,arrow_shower_3:1,single_arrow:1,keen_eye:1,steady_aim:1,mp1:1,mp2:1,mp3:1,mp4:1,hm_pass:1,pa1:1,pa2:1,pa3:1,rapid_draw:3,rf1:1,rf2:1,rf3:1,rf_aimed:1,apex:1};
+const TAKEN={venom_tip:1,arrow_shower_1:1,arrow_shower_2:1,arrow_shower_3:1,single_arrow:1,keen_eye:1,steady_aim:1,mp1:1,mp2:1,mp3:1,mp4:1,hm_pass:1,pa1:1,pa2:1,pa3:1,pierce:1,rapid_draw:3,rf1:1,rf2:1,rf3:1,rf_aimed:1,apex:1};
 const MAXR={keen_eye:4,rapid_draw:4};
 const STEPS=[
- {n:"Pierce",ids:["pierce"],pts:"56 to 57",c:2,dps:13818,why:"Parasitic Arrow ignores DEF and becomes true damage."},
- {n:"Killing Shot rank 4",ids:["rapid_draw"],pts:"58",c:1,dps:13934,why:"Crit damage +16.8% (from +13.4%)."},
- {n:"Wind Reader",ids:["wind_reader"],pts:"59",c:1,dps:14048,why:"+1.3% crit chance."},
- {n:"Rapid Fire IV",ids:["rf4"],pts:"60 to 64",c:5,dps:14855,why:"5 shots at 89% ATK each (from 76%). Tier IV, needs Mastery 60."},
- {n:"Eagle Sight (via Marksman's Strength I to IV)",ids:["ms1","ms2","ms3","ms4","eagle_sight"],pts:"65 to 71",c:7,dps:15717,why:"Autos never miss a debuffed enemy. Fixes the 94.7% hit and adds +5 STR on the way. 4 Marksman's Strength points, then 3 for Eagle Sight."},
- {n:"Piercing Shot I + Hunter's Mark I, II + Quarry",ids:["piercing_shot_1","hm1","hm2","quarry"],pts:"72 to 80",c:9,dps:16467,why:"Starts the Hunter's Mark build. Piercing Shot takes the fourth ability slot, Quarry gives +25% stronger vulnerable."},
- {n:"Hunter's Mark III",ids:["hm3"],pts:"81 to 84",c:4,dps:17022,why:"114% ATK, 19% vulnerable."},
- {n:"Hunter's Mark IV",ids:["hm4"],pts:"85 to 89",c:5,dps:17581,why:"127% ATK, 22% vulnerable. Tier IV, Mastery 60."},
- {n:"Sharpened Tip I to IV",ids:["st1","st2","st3","st4"],pts:"90 to 93",c:4,dps:17903,why:"+0.7% damage per node, four in a chain."},
- {n:"Hemotoxin",ids:["hemo"],pts:"94 to 95",c:2,dps:18017,why:"Parasitic Arrow leaves a DoT (11%/s for 6s)."},
- {n:"Parasitic Arrow IV",ids:["pa4"],pts:"96 to 100",c:5,dps:18214,why:"203% ATK and 13% vulnerable. Tier IV, Mastery 60."}];
-const BASE=13466;
+ {n:"Killing Shot rank 4",ids:["rapid_draw"],pts:"58",c:1,dps:14187,why:"Crit damage +16.8% (from +13.4%)."},
+ {n:"Wind Reader",ids:["wind_reader"],pts:"59",c:1,dps:14303,why:"+1.3% crit chance."},
+ {n:"Rapid Fire IV",ids:["rf4"],pts:"60 to 64",c:5,dps:15125,why:"5 shots at 89% ATK each (from 76%). Tier IV, needs Mastery 60."},
+ {n:"Eagle Sight (via Marksman's Strength I to IV)",ids:["ms1","ms2","ms3","ms4","eagle_sight"],pts:"65 to 71",c:7,dps:15971,why:"Autos never miss a debuffed enemy. Fixes the 94.9% hit and adds +5 STR on the way. 4 Marksman's Strength points, then 3 for Eagle Sight."},
+ {n:"Piercing Shot I + Hunter's Mark I, II + Quarry",ids:["piercing_shot_1","hm1","hm2","quarry"],pts:"72 to 80",c:9,dps:16734,why:"Starts the Hunter's Mark build. Piercing Shot takes the fourth ability slot, Quarry gives +25% stronger vulnerable."},
+ {n:"Hunter's Mark III",ids:["hm3"],pts:"81 to 84",c:4,dps:17297,why:"114% ATK, 19% vulnerable."},
+ {n:"Hunter's Mark IV",ids:["hm4"],pts:"85 to 89",c:5,dps:17866,why:"127% ATK, 22% vulnerable. Tier IV, Mastery 60."},
+ {n:"Sharpened Tip I to IV",ids:["st1","st2","st3","st4"],pts:"90 to 93",c:4,dps:18192,why:"+0.7% damage per node, four in a chain."},
+ {n:"Hemotoxin",ids:["hemo"],pts:"94 to 95",c:2,dps:18308,why:"Parasitic Arrow leaves a DoT (11%/s for 6s)."},
+ {n:"Parasitic Arrow IV",ids:["pa4"],pts:"96 to 100",c:5,dps:18507,why:"203% ATK and 13% vulnerable. Tier IV, Mastery 60."}];
+const BASE=14069;
 const $=id=>document.getElementById(id);
 const planned={};STEPS.forEach((s,i)=>s.ids.forEach(id=>{(planned[id]=planned[id]||[]).push(i+1)}));
 function node(id){const [nm,c]=NODES[id],r=TAKEN[id]||0,st=planned[id]||[],mx=MAXR[id]||1;

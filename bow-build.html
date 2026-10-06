@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Gear, runes, stats, Quest Tree, combat logs and endgame items for the build.">
+<title>Build Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>:root{
+  --bg:#121315; --bg2:#17191c; --panel:#1b1e22; --panel2:#262a30; --ink:#ebe6dc; --muted:#9a968c; --line:#30343a;
+  --accent:#d6a24a; --accent-soft:#3a2f1c; --accent-ink:#1b1408; --accent-line:#8a6a32;
+  --gain:#7cc7a4; --venom:#b897ee; --ability:#6fa8dc; --danger:#ef8b80; --good:#7fd49b;
+  --f-display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --venom:#6f45ad; --ability:#2f6aa3; --danger:#b3261e; --good:#1c7a48; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#e9ebe8; --bg2:#f1f2ef; --panel:#fbfbf9; --panel2:#e3e6e1; --ink:#1c1e1b; --muted:#5d625b; --line:#cdd2ca;
+  --accent:#8f5e12; --accent-soft:#f3e6c9; --accent-ink:#ffffff; --accent-line:#c79b55;
+  --gain:#1d7a57; --venom:#6f45ad; --ability:#2f6aa3; --danger:#b3261e; --good:#1c7a48; color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:radial-gradient(1200px 500px at 70% -10%,var(--accent-soft),transparent 70%);background-repeat:no-repeat;color:var(--ink);font:15px/1.6 var(--f-body)}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 64px}
+h1{font:700 2rem/1.1 var(--f-display);margin:8px 0 4px}h1 span{color:var(--accent)}
+h2{font:600 1.25rem/1.2 var(--f-display);margin:36px 0 10px;padding-top:14px;border-top:1px solid var(--line);color:var(--accent);scroll-margin-top:12px}
+h3{font:600 1.05rem var(--f-display);margin:24px 0 8px;scroll-margin-top:12px}h4{font:600 .95rem var(--f-display);margin:18px 0 6px;color:var(--muted)}
+p{margin:0 0 12px;max-width:80ch}.meta{color:var(--muted);font-size:.85rem}
+a{color:var(--accent)}b{font-weight:600}
+ul{margin:0 0 14px;padding-left:20px;max-width:85ch}li{margin:0 0 6px}
+.tw{overflow-x:auto;margin:10px 0 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font:600 .72rem var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel2);white-space:nowrap}
+tr:last-child td{border-bottom:0}td:first-child{white-space:nowrap}td{min-width:90px}
+.toc{display:flex;flex-wrap:wrap;gap:6px 14px;margin:14px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:.82rem}
+.toc a{text-decoration:none;color:var(--muted)}.toc a:hover{color:var(--accent)}
+</style>
+<style>.siteNav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:1280px;margin:0 auto;padding:10px 16px 0;font:500 .8rem/1.4 var(--f-body,system-ui)}.siteNav a{color:var(--muted);text-decoration:none}.siteNav a:hover,.siteNav a[aria-current]{color:var(--accent)}.siteNav .home{font-weight:700;color:var(--ink)}</style>
+</head>
+<body>
+<nav class="siteNav"><a class="home" href="/">Void Idle Tools</a><a href="/bow-planner">Bow Planner</a><a href="/bow-roadmap">Bow Roadmap</a><a href="/bow-endgame">Bow Endgame</a><a href="/bow-build" aria-current="page">Bow Build Guide</a><a href="/general-planner">General Planner</a><a href="/general-roadmap">General Roadmap</a><a href="/general-endgame">General Endgame</a></nav>
+
+<div class="wrap"><h1>Bow <span>Build Guide</span></h1><p class="meta">Updated 2026-10-06 · Lv 57 · Single Arrow + Apex Predator</p><nav class="toc"><a href="#current-build">Current build</a><a href="#character-stats">Character stats</a><a href="#where-your-stats-come-from">Where your stats come from</a><a href="#combat-log-results">Combat log results</a><a href="#key-findings">Key findings</a><a href="#mana-budget">Mana budget</a><a href="#situations-checked">Situations checked</a><a href="#testing-a-change">Testing a change</a><a href="#general-tree-priority">General tree priority</a><a href="#next-upgrades">Next upgrades</a><a href="#best-gear-stats">Best gear stats</a><a href="#current-gear">Current gear</a><a href="#rune-priorities">Rune priorities</a><a href="#endgame-gear-to-chase">Endgame gear to chase</a></nav>
+<p><b>At a glance:</b> a Single Arrow + Apex Predator Bow build on 57 mastery points, planned at 14,069 <b>single-target DPS in the Bow Planner; every planner and roadmap starts from this build</b>. Autos carry the build; keep <b>Haste</b> on in your current party and <b>Attack</b> when solo.</p>
+<h2 id="current-build">Current build</h2>
+<p>Single Arrow plus Apex Predator, built around auto-attacks, with all 57 mastery points spent and nothing defensive. It averages about 13.3K DPS on normal packs and leads the party. Test changes in the <a href="/bow-planner">Bow Planner</a>.</p>
+<div class="tw"><table>
+<tr><th>Path</th><th>Nodes</th><th>Points</th></tr>
+<tr><td>Root</td><td>Venom Tip</td><td>1</td></tr>
+<tr><td>Keen Eye</td><td>Keen Eye 1/4</td><td>1</td></tr>
+<tr><td>Keen Eye</td><td>Marked Prey I–IV, Hunter&#x27;s Mark (passive)</td><td>7</td></tr>
+<tr><td>Keen Eye</td><td>Parasitic Arrow I–III, Pierce</td><td>11</td></tr>
+<tr><td>Killing Shot</td><td>Killing Shot 3/4, Steady Aim</td><td>4</td></tr>
+<tr><td>Killing Shot</td><td>Rapid Fire I–III, Aimed</td><td>11</td></tr>
+<tr><td>Arrow Shower</td><td>Arrow Shower I–III</td><td>6</td></tr>
+<tr><td>Capstones</td><td>Single Arrow (inversion), Apex Predator</td><td>16</td></tr>
+<tr><td><b>Total</b></td><td></td><td><b>57</b></td></tr>
+</table></div>
+<ul><li><b>Abilities equipped:</b> Rapid Fire, Arrow Shower, Parasitic Arrow. The 4th slot is empty for now. In a party mana isn&#x27;t the limit, and the Bow Endgame fills it with Hunter&#x27;s Mark and Piercing Shot.</li><li><b>Imbue:</b> Inner Focus (General tree), chosen over Venom Tip because it costs no mana and adds +4% to all damage at 4/4. <b>Bow runes (5/5):</b> Sharpened ATK +70 (T5), Brutal crit damage +14% (T4), Executioner execute +8% (T4), Precise crit +2% (T4), Cleaving attack speed +3% (T4). Precise and Cleaving are now T4.</li></ul>
+<h2 id="character-stats">Character stats</h2>
+<p>Your character sheet with no aura, which already includes the Bow tree. The planner takes the tree&#x27;s bonuses back out of crit and damage, so they aren&#x27;t counted twice.</p>
+<div class="tw"><table>
+<tr><th>Stat</th><th>Sheet (no aura)</th><th>In the planner</th></tr>
+<tr><td>Attack</td><td>1,095 with a party Attack aura (1,086 solo with your own Attack aura)</td><td>1,095</td></tr>
+<tr><td>Attack interval</td><td>1.11 s</td><td>1.140 s (minus Steady Aim)</td></tr>
+<tr><td>Hit chance</td><td>94.9% (sources capped at 95%)</td><td>92.9% plus Keen Eye, capped at 95%</td></tr>
+<tr><td>Crit chance</td><td>68.3%</td><td>58.3% (minus Apex +10%)</td></tr>
+<tr><td>Crit damage</td><td>375.53%</td><td>362.1% (minus Killing Shot 3)</td></tr>
+<tr><td>Damage</td><td>50.7%</td><td>33.9% (minus Apex 17% and Marked Prey 2.8%)</td></tr>
+<tr><td>Execute damage</td><td>21.5%</td><td>21.5%</td></tr>
+<tr><td>Ability damage</td><td>38.9%</td><td>38.9%</td></tr>
+<tr><td>Boss damage</td><td>7%</td><td>7%</td></tr>
+<tr><td>Armor pen</td><td>—</td><td>—</td></tr>
+<tr><td>Cooldown reduction</td><td>23.86%</td><td>23.86%</td></tr>
+<tr><td>Mana regen</td><td>84.8 per 10 s with Party Wisdom (5.8 solo)</td><td>84.8 per 10 s</td></tr>
+<tr><td>Max mana</td><td>2,123</td><td>2,123</td></tr>
+<tr><td>Max HP</td><td>2,700</td><td>—</td></tr>
+<tr><td>Mastery</td><td>Level 57, 57 points spent (Tier IV unlocks at 60)</td><td>57 points</td></tr>
+<tr><td>STR or INT to Attack</td><td>about 1.7 Attack per point</td><td>1.67</td></tr>
+</table></div>
+<p><b>Party vs solo.</b> Planner numbers assume your usual party: four party auras (Attack +5.7%, Haste, Defense and Wisdom for 84.8 mana regen per 10 s) and 16% party vulnerable on the target, whoever in the party brings them. Solo, Attack reads 1,064 and regen drops to 5.8, so abilities run short of mana.</p>
+<div class="tw"><table>
+<tr><th>Setup</th><th>Planner DPS</th></tr>
+<tr><td>Party (all planner numbers)</td><td>14,069</td></tr>
+<tr><td>Solo, your Attack aura on</td><td>11,225</td></tr>
+<tr><td>Solo, your Haste aura on</td><td>about 2% lower than Attack</td></tr>
+</table></div>
+<p>Solo, switch your aura to Attack, use mana potions and put Energized runes in the empty jewelry slots.</p>
+<h2 id="where-your-stats-come-from">Where your stats come from</h2>
+<p>Each stat as the game&#x27;s stat sheet breaks it down at Level 55, with the gear pieces behind each equipment total. The Level 56 sheet differs only in Attack (+7 from stat points), attack speed (1.11 s), hit (94.7%), crit (68.3%), damage (50.2%) and mana; see Character stats above.</p>
+<div class="tw"><table>
+<tr><th>Stat</th><th>Total</th><th>Sources</th><th>Gear detail</th></tr>
+<tr><td>Attack</td><td>1,069</td><td>Base 2, stat points 365, equipment 482; then x1.049 Giant Hunter, x1.05 Guild, x1.048 Attack Aura, x1.045 Quest Tree, x1.094 All Stats</td><td>Equipment 482 = flat ATK 320 (bow 237.1, Sharpened rune 70, Grip 12.8) + 54 STR and 54 INT from Mighty and Sage runes at 1.5 Attack each (162)</td></tr>
+<tr><td>Attack speed</td><td>1.12 s (bow base 2.0 s)</td><td>Equipment +66.22%, Party Haste +3.7%, Quest Tree +3.48%, Ability Tree +3.34% (Steady Aim and General Haste)</td><td>Helm 9.9, boots 9.2, amulet 8.5, chest 8.3, shoulders 7.7, legs 7.5, bow 6.8, Grip 6.4, Cleaving rune 2</td></tr>
+<tr><td>Hit chance</td><td>94.25%</td><td>Base 80%, Weapon Skill (Lv 55) 11%, Ability Tree 3.25% (Keen Eye 2, General Aim 1.25)</td><td>Auto-attacks lose 2% per enemy level above you beyond 15 (floor 20%); abilities never miss</td></tr>
+<tr><td>Crit chance</td><td>67.8%</td><td>Base 10%, equipment 44.9%, Ability Tree 12.6% (Apex Predator 10, General Edge 2.6)</td><td>Boots 5.9, helm 5.7, chest 5.6, amulet 4.9, shoulders 4.8, legs 4.2, bow 3.1, both rings 3.1, Grip 3.0, Precise rune 1.5</td></tr>
+<tr><td>Crit damage</td><td>374.03%</td><td>Base 200%, equipment 128.63%, Ability Tree 43.4% (General Malice 30, Killing Shot 3 13.4), Quest Tree 2%</td><td>Helm 19.2, boots 18.6, bow 16.4, both rings 16.4, Grip 14.7, Brutal rune 14, legs 12.9</td></tr>
+<tr><td>Execute</td><td>21.5%</td><td>Equipment 21.5%</td><td>Bow 13.5, Executioner rune 8</td></tr>
+<tr><td>Ability damage</td><td>38.9%</td><td>Equipment and runes 30.9%, Quest Tree 8%</td><td>Serpent&#x27;s Bite 8.5, Eagle Eye 8.5, Empowered runes 6 + 4 + 4</td></tr>
+<tr><td>Boss damage</td><td>7%</td><td>Runes 7%</td><td>Greater Marked on the amulet</td></tr>
+<tr><td>Damage</td><td>49.7%</td><td>Weapon Mastery 27.5%, Ability Tree 22.2% (Apex Predator 17, Marked Prey 2.8, General Power)</td><td>—</td></tr>
+<tr><td>Cooldown reduction</td><td>23.86%</td><td>Equipment 21.86%, Quest Tree 2%</td><td>Chest 3.4, amulet 3.2, legs 2.9, both rings 2.5, shoulders 2.3, Efficient runes 2 + 1.5 + 1.5</td></tr>
+<tr><td>Max mana</td><td>2,060</td><td>Base 640, mana points 972, equipment 216; then x1.03 Quest Tree, x1.094 All Stats</td><td>—</td></tr>
+<tr><td>Mana regen</td><td>80.8 per 10 s</td><td>Base 5, Party Wisdom 75, breakpoints 0.8</td><td>—</td></tr>
+<tr><td>Max HP</td><td>2,606</td><td>Base 1,180, equipment 983; then x1.09 Guild, x1.01 Quest Tree, x1.094 All Stats</td><td>Resilient and Stalwart runes on helm and boots</td></tr>
+<tr><td>Defense</td><td>432 (50.09% damage reduction vs this zone&#x27;s mobs, 23.53% vs Twin Souls)</td><td>Equipment 350; then x1.049 Giant Hunter, x1.05 Guild, x1.056 Party Defense, x1.014 Quest Tree, x1.094 All Stats</td><td>—</td></tr>
+<tr><td>All Stats</td><td>9.4%</td><td>Equipment</td><td>Chest 4.0, shoulders 3.7, Eagle Eye 1.7</td></tr>
+<tr><td>Luck</td><td>40.8%</td><td>Equipment and runes</td><td>Bow 14.5, Grip 8.8, Lucky runes 6 + 4</td></tr>
+</table></div>
+<p>What this shows:</p>
+<ul><li>Weapon Mastery (27.5%) is your largest single source of Damage, ahead of Apex Predator (17%).</li><li>Attack is about half stat points (365) and half gear (482), then five multipliers worth about +30% together. All Stats is the biggest of them at 9.4%.</li><li>Each STR or INT from a rune adds 1.5 Attack before multipliers, so a Mighty or Sage T4 upgrade is worth a little Attack on all 12 runes.</li><li>Crit chance is two-thirds gear (44.9 of 67.8), so a piece that drops crit costs more than it looks.</li><li>Crit damage starts from a 200% base; gear adds 128.6 and your trees 43.4.</li><li>Execute comes entirely from the bow and its Executioner rune.</li><li>The Quest Tree adds small amounts almost everywhere: ability damage 8%, Attack 4.5%, attack speed 3.48%, crit damage 2%, CDR 2%.</li><li>Mana regen is almost all Party Wisdom (75 of 80.8); solo it falls to about 5.8 per 10 s.</li></ul>
+<h3 id="what-each-source-is-worth">What each source is worth</h3>
+<p>DPS gained from one more unit of each source at your current stats, from the Bow Planner. Use it to judge any node, rune, gear roll or bonus.</p>
+<div class="tw"><table>
+<tr><th>Source</th><th>One more unit</th><th>DPS gain</th></tr>
+<tr><td>Attack multiplier (Giant Hunter, Guild, Attack Aura, Quest Tree)</td><td>+1%</td><td>about +1.0%</td></tr>
+<tr><td>All Stats</td><td>+1%</td><td>about +0.85% (also raises HP, mana and Defense)</td></tr>
+<tr><td>Hit chance</td><td>+1%, up to the 95% cap (0.75% left)</td><td>about +0.8%</td></tr>
+<tr><td>Damage (Weapon Mastery, Apex Predator, General Power)</td><td>+1%</td><td>about +0.66%</td></tr>
+<tr><td>Crit chance</td><td>+1%</td><td>about +0.60%</td></tr>
+<tr><td>Execute</td><td>+1%</td><td>about +0.37%</td></tr>
+<tr><td>Ability damage</td><td>+1%</td><td>about +0.35%</td></tr>
+<tr><td>Attack speed</td><td>+1%</td><td>about +0.34%</td></tr>
+<tr><td>Crit damage</td><td>+1%</td><td>about +0.25%</td></tr>
+<tr><td>STR or INT</td><td>+1 point (1.5 Attack before multipliers)</td><td>about +0.17%</td></tr>
+<tr><td>Flat Attack on gear</td><td>+10</td><td>about +1.2%</td></tr>
+<tr><td>Boss damage</td><td>+1%</td><td>about +0.9%, bosses only</td></tr>
+<tr><td>CDR, mana, mana regen, HP, Defense, Luck, Gold Find</td><td>any</td><td>about 0 in a party</td></tr>
+</table></div>
+<h3 id="quest-tree">Quest Tree</h3>
+<p>The Quest Tree adds a small bonus to almost every stat. What it gives now, and what that is worth:</p>
+<div class="tw"><table>
+<tr><th>Stat</th><th>Quest Tree bonus</th><th>DPS value</th></tr>
+<tr><td>Ability damage</td><td>+8%</td><td>about +2.8%</td></tr>
+<tr><td>Attack</td><td>+4.5% (multiplier)</td><td>about +4.5%</td></tr>
+<tr><td>Attack speed</td><td>+3.48%</td><td>about +1.2%</td></tr>
+<tr><td>Crit damage</td><td>+2%</td><td>about +0.5%</td></tr>
+<tr><td>CDR</td><td>+2%</td><td>about 0</td></tr>
+<tr><td>Max mana</td><td>+3%</td><td>0</td></tr>
+<tr><td>Max HP</td><td>+1%</td><td>0</td></tr>
+<tr><td>Defense</td><td>+1.4%</td><td>0</td></tr>
+<tr><td>Total</td><td></td><td>about +9% DPS</td></tr>
+</table></div>
+<h4 id="quest-tree-combat-tab">Quest Tree, Combat tab</h4>
+<p>Quest Points (QP) come from daily claims (8 a day). 5 QP banked. Every node checked in-game:</p>
+<p>Plan QP in the Quest Tree section at the bottom of the <a href="/general-planner">General Planner</a>.</p>
+<div class="tw"><table>
+<tr><th>Node</th><th>Ranks</th><th>Cost</th><th>Effect</th><th>DPS value</th></tr>
+<tr><td>Combat Mastery</td><td>1/1</td><td>1 QP</td><td>Root; unlocks the Combat branch</td><td>—</td></tr>
+<tr><td>Sharp Strikes</td><td>5/5</td><td>2 QP/level</td><td>+0.4% Attack per level</td><td>+2.0%</td></tr>
+<tr><td>Power Surge</td><td>3/3</td><td>4 QP/level</td><td>+0.5% Attack per level</td><td>+1.5%</td></tr>
+<tr><td>Devastating Force</td><td>1/1</td><td>8 QP</td><td>+3% damage vs bosses</td><td>bosses only</td></tr>
+<tr><td>Keen Edge</td><td>3/3</td><td>3 QP/level</td><td>+0.1% crit chance per level</td><td>+0.2%</td></tr>
+<tr><td>Savage Blow</td><td>1/1</td><td>5 QP</td><td>+2% crit damage</td><td>+0.5%</td></tr>
+<tr><td>Quick Mind</td><td>5/5</td><td>2 QP/level</td><td>−0.4% ability cooldown per level</td><td>about 0 in a party</td></tr>
+<tr><td>Focused Strike</td><td>3/3</td><td>4 QP/level</td><td>+1% ability damage per level</td><td>+1.0%</td></tr>
+<tr><td>Arcane Mastery</td><td>1/1</td><td>8 QP</td><td>+5% ability damage</td><td>+1.7%</td></tr>
+<tr><td>Mana Well</td><td>3/3</td><td>3 QP/level</td><td>+1% max mana per level</td><td>0</td></tr>
+<tr><td>Warlord (capstone)</td><td>1/1</td><td>15 QP</td><td>+1% all combat stats, +0.2% berserk fill rate</td><td>about +1%</td></tr>
+<tr><td>Battle Alchemist</td><td>1/1</td><td>12 QP</td><td>Second elixir slot</td><td>depends on elixirs</td></tr>
+<tr><td>Iron Skin</td><td>1/5</td><td>2 QP/level</td><td>+0.4% DEF per level</td><td>0</td></tr>
+<tr><td>Damage Shield</td><td>1/3</td><td>4 QP/level</td><td>+0.3% damage reduction per level</td><td>0</td></tr>
+<tr><td>Unbreakable</td><td>1/1</td><td>8 QP</td><td>−5% recovery time</td><td>0</td></tr>
+<tr><td>Natural Armor</td><td>0, no cap</td><td>3 QP/level</td><td>+0.5% DEF per level, diminishing</td><td>0</td></tr>
+<tr><td>Fortitude</td><td>0/3</td><td>3 QP/level</td><td>+0.5% max HP per level</td><td>0</td></tr>
+<tr><td>Overflow</td><td>0/1</td><td>5 QP</td><td>−3% mana cost</td><td>0 in a party, small solo</td></tr>
+<tr><td>Last Stand</td><td>0/1, locked</td><td>5 QP</td><td>+3% DEF below 30% HP (needs Fortitude)</td><td>0</td></tr>
+<tr><td>Reforge Master</td><td>0/1, locked</td><td>18 QP</td><td>Reforging costs 10% less gold (needs Last Stand and Overflow)</td><td>0, saves gold</td></tr>
+<tr><td>Rift Delver</td><td>0/1</td><td>20 QP</td><td>+1 Void Rift run per day</td><td>0, more loot</td></tr>
+<tr><td>Weapon Mastery</td><td>20, no cap</td><td>3 QP/level</td><td>+0.5% weapon speed per level, diminishing: +4.07% now, +4.21% after the next level</td><td>+1.4% now; about +0.05% per new level</td></tr>
+<tr><td>Giant Insight, Boss Insight</td><td>8/8 each</td><td>2 QP/level</td><td>+5% Giant Hunter XP from giants (or bosses) per level. Giant Hunter is your +5.6% Attack and Defense bonus, and it grows with that XP</td><td>grows Giant Hunter over time</td></tr>
+</table></div>
+<p>Every attack, crit and ability damage node you can see is already maxed. The open nodes are defense, mana and utility, so none adds DPS. With 17 QP, the best known buy is Rift Delver at 20 QP (3 more): an extra Void Rift run every day is more loot and gear chances, which beats any defense node.</p>
+<p>Weapon Mastery is the only uncapped damage node. Each new level adds about +0.15% attack speed (about +0.05% DPS) and shrinks as it climbs, so it is the long-term sink, not a priority. Spend order: Rift Delver at 20 QP, then every QP into Weapon Mastery. The totals on your stat sheet check out: Attack 4.5% = Sharp Strikes 2 + Power Surge 1.5 + Warlord 1; attack speed 4.07% = Weapon Mastery; ability damage 8% = Focused Strike 3 + Arcane Mastery 5.</p>
+<h2 id="combat-log-results">Combat log results</h2>
+<p>Runs of this build, newest first. Normal packs average about 13.3K/s; Champion fights read higher. Some fights roughly double every source for the whole party, so compare against a teammate in the same run.</p>
+<div class="tw"><table>
+<tr><th>Run</th><th>Imbue</th><th>Auto avg</th><th>Your DPS</th><th>Party</th><th>Notes</th></tr>
+<tr><td>7h 35m, Shattered Sky Ridge D3 (Tier 3 Storm packs, Lv 43), Level 56 (19.9% to 52.2%), overkill counted</td><td>Inner Focus 4/4</td><td>14.2K</td><td>17.7K/s</td><td>Party 7.96K, 7.33K, 2.04K/s</td><td>483.8M total (about 50% of the party), 0 deaths, with T4 Precise and Cleaving on the bow. Auto crit 88.7% over 26,631 hits (Eagle Eye Ring), auto max 126.9K, autos 78.1% of damage, Arrow Shower 10.3% (67.8% crit, max 427.3K), Parasitic Arrow 4.3%, Serpent&#x27;s Bite 4.1%, imbue 3.1%. About +2.3% over the 15h 34m run (17.3K/s), against about +3% predicted from the Lv 56 stats and T4 runes. Arrow Shower crit rose 0.6 points, matching the +0.5% from Precise T4; auto crit barely moved (88.4% to 88.7%) because autos are near the crit ceiling. XP: about 1.7M in 7.6 hours including bosses, roughly 215K XP/h.</td></tr>
+<tr><td>15h 34m, Shattered Sky Ridge D3 (Tier 3 Storm and Lightning packs, Lv 37 to 44), Level 55 to 56, overkill counted</td><td>Inner Focus 4/4</td><td>14.0K</td><td>17.3K/s</td><td>Party 7.99K, 7.26K, 2.17K/s</td><td>970.4M total (about 50% of the party), 0 deaths in 15.5 hours, auto crit 88.4% over 54,066 hits (Eagle Eye Ring), auto max 130.6K, Arrow Shower 10.7% (67.2% crit, max 427.4K), Parasitic Arrow 4.3%, Serpent&#x27;s Bite 4.1%, imbue 3.1%. The definitive farming number for this build: 17.3K/s in D3, about 12% above Sky Ridge D1 (15.4K/s). Reached Level 56 during the run.</td></tr>
+<tr><td>13s, World Boss Fallen Disciple (Lv 30, 85 players), the whole fight</td><td>Inner Focus 4/4</td><td>19.1K</td><td>19.5K/s</td><td>Party 47.3K, 11.5K, 0.78K/s</td><td>250K total, 0 deaths, 10 autos at 100% crit (max 32.2K), Arrow Shower 2 hits, Parasitic Arrow 1 hit. Too short for Hunter&#x27;s Mark to stack or for execute to matter, so it shows the opening burst, not sustained boss damage. Burst-heavy builds lead fights this short.</td></tr>
+<tr><td>42m 5s, Shattered Sky Ridge D3 (Tier 3 Lightning and Storm packs, 196K-HP Storm Elementals), overkill counted</td><td>Inner Focus 4/4</td><td>14.1K</td><td>17.7K/s</td><td>Party 7.52K, 7.16K, 2.20K/s</td><td>44.8M total (about 51% of the party), 0 deaths, auto crit 89.2% (Eagle Eye Ring), auto max 100.6K, Arrow Shower 10.6% (67.8% crit, max 175.7K), Parasitic Arrow 4.3%, Serpent&#x27;s Bite 4.1%. Peaked at 19.0K/s around 30 minutes. About 15% above Sky Ridge D1 farming (15.4K/s) with no deaths, levelling at about 2.4% of a level per hour.</td></tr>
+<tr><td>2h 49m, mixed packs and Champions (Glass Roc, Lv 39), overkill counted</td><td>Inner Focus 4/4</td><td>12.7K</td><td>16.7K/s</td><td>Party 4.43K, 3.15K, 2.14K/s</td><td>169.4M total (about 59% of the party), 1 death, auto crit 71.7%, auto max 106.1K, Arrow Shower 9.2% (max 216.2K), Plague 3.2% (max 130.6K). Matches the 20-minute session, so about 17K/s is this build&#x27;s farming rate. Last 30s 13.8K/s</td></tr>
+<tr><td>19m 50s, mixed packs and Champions, overkill counted</td><td>Inner Focus 4/4</td><td>13.0K</td><td>16.9K/s</td><td>Party 4.58K, 3.14K, 1.81K/s</td><td>20.1M total, 0 deaths, auto crit 71.6%, auto max 97.1K, Arrow Shower max 199.1K (10.1% of damage), 134 Arrow Shower and 90 Parasitic Arrow casts. The best everyday-farming number: it averages normal packs and Champions together. Last 30s 10.9K/s</td></tr>
+<tr><td>3m 8s, normal packs (Champion spawned near the end), overkill counted</td><td>Inner Focus 4/4</td><td>10.2K</td><td>13.1K/s</td><td>Party 6.33K, 3.48K, 1.78K/s</td><td>Auto crit 68.6%, auto max 23.8K, Arrow Shower 21 casts, Parasitic Arrow 14 casts, 0 deaths. With the 13.6K/s run, normal packs average about 13.35K/s on this build</td></tr>
+<tr><td>3m 6s, Champion spawn (227K HP), overkill counted</td><td>Inner Focus 4/4</td><td>14.8K</td><td>18.1K/s</td><td>Party 3.35K, 2.85K, 1.92K/s</td><td>Champion fight, not a normal-pack baseline. Auto max 86.8K, auto crit 70.7%, autos 79.3% of damage, Arrow Shower 21 casts, Parasitic Arrow 14 casts, 0 deaths. Last 30s 12.2K/s</td></tr>
+<tr><td>3m 10s, normal packs, overkill counted</td><td>Inner Focus 4/4</td><td>10.3K</td><td>13.6K/s</td><td>Party 7.80K, 2.44K, 1.71K/s</td><td>First run of this build. Auto crit 72.4%, auto max 20.8K, Arrow Shower 22 casts (63.6% crit), Parasitic Arrow 14 casts (78.6% crit), Serpents Bite 4.9%, 0 deaths. Shan read about double his usual 3.4–4K/s, so the packs may have been easier than usual</td></tr>
+</table></div>
+<ul><li><b>Planner accuracy:</b> on normal packs, auto hits and crit rate match the planner within about 1%.</li><li><b>Higher than the planner:</b> Arrow Shower and Parasitic Arrow hit harder than their tooltips suggest.</li><li><b>Rapid Fire:</b> its shots show up under Auto-attack. With Aimed, auto crit rises from about 59% to 71–78%.</li></ul>
+<h2 id="key-findings">Key findings</h2>
+<p>Auto-attacks make up about 70–75% of your damage, so the build pushes auto damage first and keeps abilities as cheap to run as it can.</p>
+<div class="tw"><table>
+<tr><th>Choice</th><th>Result</th><th>Why</th></tr>
+<tr><td>Single Arrow over Precision</td><td>About +26% in the planner</td><td>Autos ignore armor and deal ×1.4</td></tr>
+<tr><td>Apex Predator with Single Arrow</td><td>About +12% over the no-capstone build</td><td>+17% damage and +10% crit; you can take one inversion and one regular capstone</td></tr>
+<tr><td>Aimed over Overdraw or Salvo</td><td>About +3% over Overdraw and +4% over Salvo</td><td>At about 58% crit and 320% crit damage, a guaranteed crit beats a flat +18%</td></tr>
+<tr><td>Marksman&#x27;s Strength</td><td>+5 STR for 4 points, about +0.7% DPS</td><td>Weak on its own; it is the path to Eagle Sight</td></tr>
+<tr><td>Inner Focus vs Venom Tip</td><td>Inner Focus: +4% all damage at 4/4</td><td>Venom costs 1 mana per shot; Inner Focus grows +1% per rank</td></tr>
+</table></div>
+<p><b>Auras:</b> both apply only to your base stats, so they&#x27;re smaller than their tooltips say. Attack Aura Lv16 (+4.84%) measured +37 Attack (1,153 → 1,190), worth about <b>+3.2%</b> damage. Haste Aura Lv9 (+2.65%) measured 1.09 → 1.08 s, worth about <b>+0.5%</b>. Run Attack solo. Confirmed in-game: only the strongest aura of each type applies. In a party, run whichever aura type no one else covers: if someone already runs a stronger Attack aura (for example +5.57% against your +4.84%), yours adds nothing, so switch to Haste. A party Wisdom aura is worth about +6–9%, because it keeps your abilities supplied with mana.</p>
+<h2 id="mana-budget">Mana budget</h2>
+<p>At full cooldown speed your abilities burn about 16 mana per second against 0.58 regen when solo, so a full bar lasts about 2 minutes. In a party, Party Wisdom raises regen to 8.48 per second, so mana rarely runs out.</p>
+<div class="tw"><table>
+<tr><th>Ability</th><th>Mana</th><th>Cooldown after 23.86% CDR</th><th>Mana per second</th></tr>
+<tr><td>Arrow Shower III</td><td>60</td><td>9.1 s</td><td>6.6</td></tr>
+<tr><td>Parasitic Arrow III</td><td>68</td><td>13.7 s</td><td>5.0</td></tr>
+<tr><td>Rapid Fire III</td><td>75</td><td>15.2 s</td><td>4.9</td></tr>
+<tr><td>Venom Tip (if used)</td><td>1 per shot</td><td>—</td><td>about 1.0</td></tr>
+<tr><td><b>Regen</b></td><td>84.8 per 10 s (5.8 solo)</td><td>—</td><td>8.48 (0.58 solo)</td></tr>
+</table></div>
+<h2 id="situations-checked">Situations checked</h2>
+<ul><li><b>Single target in a party:</b> this build is best. It skips defensive nodes on purpose.</li><li><b>Packs of 3–5 mobs (AoE):</b> the planner&#x27;s optimizer picks the same build. Arrow Shower&#x27;s share of your damage rises with pack size.</li><li><b>Teammate brings vulnerable:</b> the same build is still best. Your own Hunter&#x27;s Mark matters less then.</li></ul>
+<h2 id="testing-a-change">Testing a change</h2>
+<ul><li>Press RESET in Combat Stats.</li><li>Fight normal packs for 3 minutes or more, with no Champion.</li><li>Screenshot Session, and compare against a teammate&#x27;s DPS in the same run, since whole-party swings mean the fight changed.</li><li>Swap the one change, reset, and repeat.</li></ul>
+<h2 id="general-tree-priority">General tree priority</h2>
+<p>Best General tree nodes, first to last, with value per point measured from your Combat Stats.</p>
+<ul><li><b>Inner Focus:</b> +1% all damage per rank, about +0.65% DPS per point. Maxed at 4/4.</li><li><b>Malice:</b> +1.5% crit damage per rank, about +0.38% DPS per point. Malice Path gives the same +1.5% per rank. Every Malice you have is 2/2; the next one is in column 3, behind an Aim.</li><li><b>Edge:</b> +0.25% crit chance per rank, about +0.15% per point. Every Edge is 1/2, so rank 2 is the filler.</li><li><b>Power:</b> about +0.17% per point.</li><li><b>Haste:</b> +0.25% attack speed per rank, about +0.1% per point or less. Keep Haste at 1/2 only where it sits on a path to better nodes.</li><li><b>Aim:</b> hit is now 94.25%, so an Aim rank is worth about the same as Edge until you take Eagle Sight. After that, skip Aim.</li></ul>
+<p>The Thrift, Well, Spring, Siphon and Grace nodes on the right are mana and sustain nodes (Path of Flow is mana regeneration, Path of Stone is max HP and defense), and none of them beat the damage nodes above, so they&#x27;re not part of this list. The Focus nodes at the top of each column (Power Focus +0.5% damage, Haste Focus +0.5% attack speed) are already taken and are the best value per point. Resets have been free so far, so moving points is safe to try: check Combat Stats after each batch.</p>
+<h2 id="next-upgrades">Next upgrades</h2>
+<p>Next mastery points, in order, with planner gains from the current 14,069 DPS. The full map is in the <a href="/bow-roadmap">Bow Roadmap</a>.</p>
+<div class="tw"><table>
+<tr><th>Points</th><th>Node</th><th>Party gain</th><th>Party per point</th><th>Solo gain</th></tr>
+<tr><td>58</td><td>Killing Shot rank 4</td><td>+0.8%</td><td>+0.8%</td><td>+0.8%</td></tr>
+<tr><td>59</td><td>Wind Reader</td><td>+0.8%</td><td>+0.8%</td><td>+0.9%</td></tr>
+<tr><td>60–64</td><td>Rapid Fire IV (needs Mastery 60)</td><td>+5.7%</td><td>+1.1%</td><td>+3.4% (mana-limited)</td></tr>
+<tr><td>65–71</td><td>Eagle Sight, through Marksman&#x27;s Strength I–IV</td><td>+5.6%</td><td>+0.8%</td><td>+5.4%</td></tr>
+<tr><td><b>Total by 71</b></td><td></td><td><b>14,069 → 15,971</b></td><td></td><td><b>11,225 → 12,437</b></td></tr>
+</table></div>
+<p>That adds up to about +13.5% by point 71 (15,971 DPS). Eagle Sight makes autos never miss a debuffed enemy, which closes the 94.9% hit gap and protects the Strategist&#x27;s Grip crit stacks. General tree points are worth less: about +0.3% per point for the column 3 Malice (it needs an Aim first), then about +0.15 to +0.17% per point for Edge and Power ranks.</p>
+<h2 id="best-gear-stats">Best gear stats</h2>
+<p>Crit chance and All Stats are worth the most per point, but rolls differ in size, so compare gear by the DPS of a typical roll. Values are Bow Planner estimates at your current stats.</p>
+<div class="tw"><table>
+<tr><th>Stat</th><th>DPS per point</th><th>Typical roll</th><th>DPS per roll</th></tr>
+<tr><td>Execute</td><td>+0.37% per 1%</td><td>13.5%</td><td>+5.0%</td></tr>
+<tr><td>Crit damage</td><td>+0.25% per 1%</td><td>15%</td><td>+3.7%</td></tr>
+<tr><td>Attack speed</td><td>+0.34% per 1%</td><td>7.5%</td><td>+2.6%</td></tr>
+<tr><td>Ability damage</td><td>+0.35% per 1%</td><td>8.5%</td><td>+3.0%</td></tr>
+<tr><td>All Stats</td><td>+0.85% per 1%</td><td>3.5%</td><td>+3.0%</td></tr>
+<tr><td>Crit chance</td><td>+0.60% per 1%</td><td>4.5%</td><td>+2.7%</td></tr>
+<tr><td>Flat ATK on gear</td><td>about +1.2% per 10</td><td>13 (gloves)</td><td>+1.5%</td></tr>
+<tr><td>STR or INT</td><td>+0.15% per point</td><td>9 (rune)</td><td>+1.3%</td></tr>
+<tr><td>CDR, Luck, Gold Find, HP, DEF, Heal, Max Mana</td><td>0</td><td>—</td><td>0</td></tr>
+</table></div>
+<p>Execute assumes the target spends 40% of the fight below 40% HP, so treat it as an estimate. Flat ATK on gear is multiplied by your guild, party, quest and All Stats bonuses (about ×1.37), which is why 10 gear ATK is worth more than 10 ATK on the sheet. Your Strategist&#x27;s Grip and Serpent&#x27;s Bite Ring both scale off crits, so crit chance and crit damage are worth a little more than shown.</p>
+<h2 id="current-gear">Current gear</h2>
+<p>Every equipped item at its current enhancement. Use this table to judge any market piece against the slot it would replace.</p>
+<div class="tw"><table>
+<tr><th>Slot</th><th>Item</th><th>Damage stats</th><th>Runes</th></tr>
+<tr><td>Bow</td><td>Serpent&#x27;s Coil-Bow +11 (Mythic T5)</td><td>ATK 237.1, attack speed 6.8%, crit 3.1%, crit damage 16.4%, execute 13.5%, Luck 14.5%</td><td>Sharpened ATK +70 (T5), Brutal crit damage +14% (T4), Executioner execute +8% (T4), Precise crit +2% (T4), Cleaving attack speed +3% (T4)</td></tr>
+<tr><td>Helm</td><td>Heaven&#x27;s Sight +11, merged 2 stars (T6)</td><td>Attack speed 9.9%, crit 5.7%, crit damage 19.2%</td><td>Mighty, Sage, Resilient HP +4%, Stalwart HP +3.5%</td></tr>
+<tr><td>Shoulders</td><td>Heaven&#x27;s Burden +10 (T5)</td><td>All Stats 3.7%, attack speed 7.7%, crit 4.8%, CDR 2.3%</td><td>Mighty, Sage, 2 empty</td></tr>
+<tr><td>Chest</td><td>Immortal Vestment +11 (T6)</td><td>All Stats 4.0%, attack speed 8.3%, crit 5.6%, CDR 3.4%</td><td>Mighty, Sage, 2 empty</td></tr>
+<tr><td>Gloves</td><td>Strategist&#x27;s Grip +11 (Mythic T4)</td><td>ATK 12.8, attack speed 6.4%, crit 3.0%, crit damage 14.7%, Luck 8.8%, Gold Find 12.8%; crits stack +5% attack up to +15%</td><td>Mighty, Sage, 3 empty</td></tr>
+<tr><td>Legs</td><td>Heaven&#x27;s Stride +10 (T5)</td><td>Attack speed 7.5%, crit 4.2%, crit damage 12.9%, CDR 2.9%</td><td>Mighty, Sage, 2 empty</td></tr>
+<tr><td>Boots</td><td>Immortal Sabatons +11, merged 1 star (T6)</td><td>Attack speed 9.2%, crit 5.9%, crit damage 18.6%</td><td>Mighty, Sage, Resilient HP +4%, Stalwart HP +3.5%</td></tr>
+<tr><td>Ring</td><td>Serpent&#x27;s Bite Ring +11 (Mythic T5)</td><td>Ability damage 8.5%, crit 3.1%, crit damage 16.4%, CDR 2.5%; crits apply a stacking poison</td><td>Empowered +4%, Efficient CDR +1.5%, Lucky +4%, 2 empty</td></tr>
+<tr><td>Ring</td><td>Eagle Eye Ring +11 (Mythic T5)</td><td>Ability damage 8.5%, All Stats 1.7%, crit 3.1%, crit damage 16.4%, CDR 2.5%; +15% crit chance against full-HP targets (bow only)</td><td>Empowered +6%, Efficient CDR +2%, Lucky +6% (all T4), 2 empty</td></tr>
+<tr><td>Amulet</td><td>Heaven&#x27;s Eye +10 (T6)</td><td>Attack speed 8.5%, crit 4.9%, CDR 3.2%</td><td>Empowered +4%, Efficient CDR +1.5%, Marked boss damage +7%, 1 empty</td></tr>
+</table></div>
+<p>Weakest damage slot: Heaven&#x27;s Stride legs (T5, no All Stats). Look for T6 Light legs with attack speed, crit and crit damage plus All Stats. The Yin-Yang Ring at Level 65 is the planned replacement for the Eagle Eye Ring.</p>
+<h2 id="rune-priorities">Rune priorities</h2>
+<p>Each item takes one rune of each type, and the rune list depends on the gear type. Every damage rune each item can hold is already socketed, so the best remaining buys are tier upgrades. DPS values are Bow Planner estimates.</p>
+<div class="tw"><table>
+<tr><th>Item</th><th>Runes</th><th>Best next rune</th></tr>
+<tr><td>Bow (5/5)</td><td>Sharpened ATK +70 (T5), Brutal crit damage +14% (T4), Executioner execute +8% (T4), Precise crit +2% (T4), Cleaving attack speed +3% (T4)</td><td>Precise and Cleaving T4 are done</td></tr>
+<tr><td>Armor, 6 pieces</td><td>Mighty STR +9 (T3) and Sage INT +9 (T3) on each</td><td>Mighty and Sage T4 (450k each, 12 runes)</td></tr>
+<tr><td>Eagle Eye Ring (3/5)</td><td>Empowered ability damage +6% (T4), Efficient CDR +2% (T4), Lucky luck +6% (T4)</td><td>Marked (boss damage) and Prosperous in the empty slots</td></tr>
+<tr><td>Serpent&#x27;s Bite Ring (3/5)</td><td>Empowered (T3), Efficient CDR +1.5% (T3), Lucky luck +4% (T3)</td><td>Prosperous in an empty slot</td></tr>
+<tr><td>Heaven&#x27;s Eye amulet (3/4)</td><td>Empowered (T3), Efficient (T3), Marked boss damage +7% (T3)</td><td>Prosperous in the empty slot</td></tr>
+</table></div>
+<p>What each rune is worth:</p>
+<div class="tw"><table>
+<tr><th>Rune</th><th>Stat</th><th>Goes on</th><th>DPS per rune</th></tr>
+<tr><td>Sharpened</td><td>ATK</td><td>Weapon</td><td>about +8% at T5</td></tr>
+<tr><td>Brutal</td><td>Crit damage</td><td>Weapon</td><td>about +3.6% at T4</td></tr>
+<tr><td>Empowered</td><td>Ability damage</td><td>Weapon, jewelry</td><td>+1.4% at T3</td></tr>
+<tr><td>Mighty or Sage</td><td>STR or INT (equal value)</td><td>Armor</td><td>+1.3% at T3</td></tr>
+<tr><td>Precise</td><td>Crit chance</td><td>Weapon</td><td>+0.9% at T3</td></tr>
+<tr><td>Cleaving</td><td>Attack speed</td><td>Weapon</td><td>+0.7% at T3</td></tr>
+<tr><td>Executioner</td><td>Execute damage</td><td>Weapon</td><td>+1.5–3% at T4 (+8% execute); about +2% on fast-dying packs</td></tr>
+<tr><td>Marked</td><td>Boss damage</td><td>Weapon, jewelry</td><td>bosses only</td></tr>
+<tr><td>Efficient, Swift</td><td>CDR</td><td>Weapon, jewelry</td><td>about 0</td></tr>
+<tr><td>Lucky, Prosperous, Wise, Energized</td><td>Luck, gold, mana</td><td>Jewelry</td><td>0 (loot, gold or solo mana)</td></tr>
+<tr><td>Fortified, Resilient, Stalwart, Warding, Regenerating, Absorbing, Thorned</td><td>Defense, HP, mana</td><td>Armor</td><td>0</td></tr>
+</table></div>
+<p>T4 gives about 1.4 times the T3 value (Brutal: +10% at T3, +14% at T4), so each T3-to-T4 upgrade adds roughly 0.4 times the rune&#x27;s DPS above. Spend gold in this order:</p>
+<ul><li>Mighty and Sage T4 on armor, about +0.5% each.</li><li>Done: Precise T4 on the bow (+2% crit, from +1.5%), worth about +0.3%.</li><li>Done: Cleaving T4 on the bow (+3% attack speed, from +2%), worth about +0.3%.</li><li>Prosperous in the empty jewelry slots, or Energized if you play solo.</li></ul>
+<p>The empty armor slots only take defensive runes: fill them only if you start dying. Skip Marked upgrades unless you farm bosses, and skip CDR runes.</p>
+<h2 id="endgame-gear-to-chase">Endgame gear to chase</h2>
+<p>Mythic items that appear ideal for this build, judged by their listed effects, in the order you can wear them. Luck raises every drop chance.</p>
+<div class="tw"><table>
+<tr><th>Item</th><th>Slot</th><th>Level</th><th>Drops from</th><th>Why it fits</th></tr>
+<tr><td>Frostfang Bow</td><td>Bow</td><td>65</td><td>Frostbound Ascendant (Tier 6)</td><td>258 base ATK (your bow has 167) plus 5% boss damage. The first bow upgrade.</td></tr>
+<tr><td>Yin-Yang Ring</td><td>Ring</td><td>65</td><td>Twin Souls (Tier 6)</td><td>Odd autos give +20% attack for 4 s and even autos give +20% damage reduction for 4 s. At about one auto per second both stay up almost all the time, so it works out to about +20% attack, plus All Stats 2%, crit 2.1% and crit damage 14.3%. The best early ring.</td></tr>
+<tr><td>Frostheart Ring (situational)</td><td>Ring</td><td>65</td><td>Frostbound Ascendant (Tier 6)</td><td>+50% ability damage, about +12% DPS, but each cast costs 5% of current HP and casting stops below 15% HP. Without a healer or lifesteal, about 15 casts a minute drain you to that floor in a few minutes.</td></tr>
+<tr><td>Hivewasp Bow</td><td>Bow</td><td>85</td><td>Hive Queen (Tier 7)</td><td>399 base ATK and 8% execute. Rapid Volley gives each auto a 20% chance at a second arrow for 50% damage, about +10% auto damage.</td></tr>
+<tr><td>Hive Queen&#x27;s Ring</td><td>Ring</td><td>85</td><td>Hive Queen (Tier 7)</td><td>Each kill adds +3% attack, up to +60%, losing 1 stack every 2 s between kills. No downside, and strong on fast pack farming.</td></tr>
+<tr><td>Warbringer&#x27;s Warbow</td><td>Bow</td><td>100</td><td>Warbringer (Tier 8)</td><td>618 base ATK plus crit damage, attack speed and Luck.</td></tr>
+<tr><td>Warbringer&#x27;s Signet</td><td>Ring</td><td>100</td><td>Warbringer (Tier 8)</td><td>Gains a War-Cry stack every 30 s in combat, up to +30% attack and +30% attack speed. Costs up to 60% max HP and resets on death or zone change, which suits long no-death farming behind a tank.</td></tr>
+<tr><td>Conquest Marchboots</td><td>Boots</td><td>100</td><td>Warbringer (Tier 8)</td><td>Each landed auto adds +1% attack speed, up to +25%, and a miss resets it. With Eagle Sight the stacks stay near full.</td></tr>
+<tr><td>Void Recurve</td><td>Bow</td><td>115</td><td>Voidpierced Immortal (Tier 9)</td><td>959 base ATK and 5% boss damage.</td></tr>
+<tr><td>Cleaver&#x27;s Recurve</td><td>Bow</td><td>130</td><td>Cleaver (Tier 10)</td><td>1,343 base ATK, the strongest bow listed.</td></tr>
+<tr><td>Bloodbinder Ring (situational)</td><td>Ring</td><td>130</td><td>Cleaver (Tier 10)</td><td>An auto-attack kill fires a free auto at the next normal enemy, chaining while kills land (30% miss chance per chained hit). Good on packs, nothing on bosses or Champions.</td></tr>
+<tr><td>Ring of the Eternal</td><td>Ring</td><td>145</td><td>The Eternal (Tier 11)</td><td>Every 12th landed auto deals 1000% of base ATK and can crit, an estimated +25% auto damage. A miss resets the count.</td></tr>
+<tr><td>Strategist&#x27;s Grip (keep)</td><td>Hands</td><td>30</td><td>Equipped</td><td>Crits stack +5% attack up to +15%, and a miss resets it. Worth about +15% with Eagle Sight, more than the extra stats on any listed glove. Keep it enhanced.</td></tr>
+</table></div>
+<p>The Grip, Signet, Marchboots and Ring of the Eternal all reward never missing and never dying, which makes Eagle Sight one of the most valuable points in the Bow tree.</p>
+<p>Skip for this build: Stoneward&#x27;s Vow Ring (turns off all your debuffs, including Hunter&#x27;s Mark, Parasitic Arrow&#x27;s vulnerable and the debuff Eagle Sight needs), Patriarch&#x27;s Coronet (-30% auto-attack damage), Wraith&#x27;s Vow Ring (autos cost 2 mana and its bonus needs 75% mana), Tyrant&#x27;s Heart Ring (only works below 30% HP), Wellspring Ring (a party mana item that hurts you below 50% mana), Iron Grip Ring and Vow of Iron Ring (need a sword or a spear), and Loop of Eternity and Eternal Pendant (loot and XP, no damage). Gloves without a special effect, such as Phoenix Grasp, Stinging Gauntlets, Void-Touched Gauntlets and Reaper&#x27;s Grasp, don&#x27;t beat the Grip.</p>
+<p><b>Open questions</b></p>
+<ul><li>What makes some fights deal about 2× damage for the whole party?</li><li>Confirm in-game that vulnerable effects don&#x27;t stack (only the strongest applies).</li></ul></div>
+
+</body>
+</html>
